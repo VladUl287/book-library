@@ -1,0 +1,26 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "59c2f33f-744b-487f-9b4d-b0992f30c8a4": {
+      "ProjectGuid": "59c2f33f-744b-487f-9b4d-b0992f30c8a4",
+      "DisplayName": "book-library-backend",
+      "ColorIndex": 0
+    },
+    "be84757c-ed56-4eab-8440-6f726d8d8e43": {
+      "ProjectGuid": "be84757c-ed56-4eab-8440-6f726d8d8e43",
+      "DisplayName": "DataAccess",
+      "ColorIndex": 1
+    },
+    "b40cee8c-a9d5-4f61-a620-1befc3f9e1fe": {
+      "ProjectGuid": "b40cee8c-a9d5-4f61-a620-1befc3f9e1fe",
+      "DisplayName": "Common",
+      "ColorIndex": 2
+    },
+    "6541d1e9-62ba-434b-91e1-63ecba7368dc": {
+      "ProjectGuid": "6541d1e9-62ba-434b-91e1-63ecba7368dc",
+      "DisplayName": "Infrastructure",
+      "ColorIndex": 3
+    }
+  },
+  "NextColorIndex": 4
+}

@@ -1,0 +1,12 @@
+C:\Temp\BookSite\book-library-backend\DataAccess\bin\Debug\net6.0\DataAccess.deps.json
+C:\Temp\BookSite\book-library-backend\DataAccess\bin\Debug\net6.0\DataAccess.dll
+C:\Temp\BookSite\book-library-backend\DataAccess\bin\Debug\net6.0\ref\DataAccess.dll
+C:\Temp\BookSite\book-library-backend\DataAccess\bin\Debug\net6.0\DataAccess.pdb
+C:\Temp\BookSite\book-library-backend\DataAccess\obj\Debug\net6.0\DataAccess.csproj.AssemblyReference.cache
+C:\Temp\BookSite\book-library-backend\DataAccess\obj\Debug\net6.0\DataAccess.GeneratedMSBuildEditorConfig.editorconfig
+C:\Temp\BookSite\book-library-backend\DataAccess\obj\Debug\net6.0\DataAccess.AssemblyInfoInputs.cache
+C:\Temp\BookSite\book-library-backend\DataAccess\obj\Debug\net6.0\DataAccess.AssemblyInfo.cs
+C:\Temp\BookSite\book-library-backend\DataAccess\obj\Debug\net6.0\DataAccess.csproj.CoreCompileInputs.cache
+C:\Temp\BookSite\book-library-backend\DataAccess\obj\Debug\net6.0\DataAccess.dll
+C:\Temp\BookSite\book-library-backend\DataAccess\obj\Debug\net6.0\ref\DataAccess.dll
+C:\Temp\BookSite\book-library-backend\DataAccess\obj\Debug\net6.0\DataAccess.pdb
