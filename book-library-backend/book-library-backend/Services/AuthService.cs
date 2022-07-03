@@ -6,10 +6,10 @@ using Common.Options;
 using DataAccess.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
-using book_library_backend.Helpers;
-using book_library_backend.Services.Contracts;
+using BookLibraryApi.Helpers;
+using BookLibraryApi.Services.Contracts;
 
-namespace book_library_backend.Services;
+namespace BookLibraryApi.Services;
 
 public class AuthService : IAuthService
 {
@@ -27,6 +27,7 @@ public class AuthService : IAuthService
     public async Task<OneOf<AuthSuccess, Error>> Login(AuthModel authModel)
     {
         var user = await dbContext.Users
+            .Include(e => e.Role)
             .FirstOrDefaultAsync(x => x.Email == authModel.Email);
 
         if (user is null)
@@ -35,7 +36,7 @@ public class AuthService : IAuthService
         }
 
         var hashSecret = passwordOptions.HashSecret;
-        var hashPassword = HashService.Hash(authModel.Password, hashSecret);
+        var hashPassword = HashHelper.Hash(authModel.Password, hashSecret);
 
         if (user.Password != hashPassword)
         {
@@ -48,8 +49,8 @@ public class AuthService : IAuthService
         var refreshTokenKey = authOptions.RefreshSecret;
         var lifeTime = authOptions.LifeTime;
 
-        var accessToken = JwtService.Generate(user, accessTokenKey, issuer, audience, DateTime.UtcNow.AddMinutes(lifeTime));
-        var refreshToken = JwtService.Generate(user, refreshTokenKey, issuer, audience, DateTime.UtcNow.AddDays(lifeTime));
+        var accessToken = JwtHelper.Generate(user, accessTokenKey, issuer, audience, DateTime.UtcNow.AddMinutes(lifeTime));
+        var refreshToken = JwtHelper.Generate(user, refreshTokenKey, issuer, audience, DateTime.UtcNow.AddDays(lifeTime));
 
         await dbContext.UsersTokens.AddAsync(
             new UserToken
@@ -70,6 +71,7 @@ public class AuthService : IAuthService
     public async Task<OneOf<AuthSuccess, Error>> Register(AuthModel authModel)
     {
         var exists = await dbContext.Users.AnyAsync(e => e.Email == authModel.Email);
+        var role = await dbContext.Roles.FirstOrDefaultAsync();
 
         if (exists)
         {
@@ -77,12 +79,13 @@ public class AuthService : IAuthService
         }
 
         var hashSecret = passwordOptions.HashSecret;
-        var hashPassword = HashService.Hash(authModel.Password, hashSecret);
+        var hashPassword = HashHelper.Hash(authModel.Password, hashSecret);
 
         var user = new User
         {
             Email = authModel.Email,
-            Password = hashPassword
+            Password = hashPassword,
+            RoleId = role.Id
         };
 
         await dbContext.Users.AddAsync(user);
@@ -115,7 +118,7 @@ public class AuthService : IAuthService
         var refreshTokenKey = authOptions.RefreshSecret;
         var lifeTime = authOptions.LifeTime;
 
-        var valid = JwtService.ValidateToken(dbToken.RefreshToken, refreshTokenKey, issuer, audience);
+        var valid = JwtHelper.ValidateToken(dbToken.RefreshToken, refreshTokenKey, issuer, audience);
 
         if (!valid)
         {
@@ -125,10 +128,12 @@ public class AuthService : IAuthService
             return Errors.LoginFaild;
         }
 
-        var user = await dbContext.Users.FindAsync(dbToken.UserId);
+        var user = await dbContext.Users
+            .Include(e => e.Role)
+            .FirstOrDefaultAsync(x => x.Id == dbToken.UserId);
 
-        var accessToken = JwtService.Generate(user, accessTokenKey, issuer, audience, DateTime.UtcNow.AddMinutes(lifeTime));
-        var refreshToken = JwtService.Generate(user, refreshTokenKey, issuer, audience, DateTime.UtcNow.AddDays(lifeTime));
+        var accessToken = JwtHelper.Generate(user, accessTokenKey, issuer, audience, DateTime.UtcNow.AddMinutes(lifeTime));
+        var refreshToken = JwtHelper.Generate(user, refreshTokenKey, issuer, audience, DateTime.UtcNow.AddDays(lifeTime));
 
         dbToken.RefreshToken = refreshToken;
         dbContext.UsersTokens.Update(dbToken);

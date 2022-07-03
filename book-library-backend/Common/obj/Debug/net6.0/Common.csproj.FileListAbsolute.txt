@@ -10,3 +10,6 @@ C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Common.csproj.Core
 C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Common.dll
 C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\ref\Common.dll
 C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Common.pdb
+C:\Temp\BookSite\book-library-backend\Common\bin\Debug\net6.0\DataAccess.dll
+C:\Temp\BookSite\book-library-backend\Common\bin\Debug\net6.0\DataAccess.pdb
+C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Common.csproj.CopyComplete

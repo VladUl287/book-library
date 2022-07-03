@@ -1,17 +1,14 @@
-﻿using Common.Dtos;
+﻿using OneOf;
+using Common.Dtos;
 using Common.Errors;
-using OneOf;
+using Common.Filters;
 
-namespace book_library_backend.Services.Contracts
+namespace BookLibraryApi.Services.Contracts;
+
+public interface IBookService
 {
-    public interface IBookService
-    {
-        Task<IEnumerable<BookModel>> GetBooks();
-
-        Task<OneOf<BookModel, Error>> CreateBook(BookModel bookModel);
-
-        Task<BookModel> UpdateBook(BookModel bookModel);
-
-        Task RemoveBook(BookModel bookModel);
-    }
+    Task<IEnumerable<BookModel>> GetAll(BookFilter bookFilter);
+    Task<OneOf<BookModel, Error>> Create(CreateBookModel model);
+    Task<BookModel> Update(BookModel model);
+    Task Remove(BookModel model);
 }

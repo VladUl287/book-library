@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Common.Dtos;
+using DataAccess.Models;
 
 namespace Common.Mapping
 {
@@ -6,7 +8,8 @@ namespace Common.Mapping
     {
         public MappingProfile()
         {
-            //CreateMap<PersonalAccount, AccountModel>().ReverseMap();
+            CreateMap<Book, BookModel>().ReverseMap();
+            CreateMap<Book, CreateBookModel>().ReverseMap();
         }
     }
 }

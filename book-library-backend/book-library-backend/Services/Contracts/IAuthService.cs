@@ -2,7 +2,7 @@
 using Common.Dtos;
 using Common.Errors;
 
-namespace book_library_backend.Services.Contracts
+namespace BookLibraryApi.Services.Contracts
 {
     public interface IAuthService
     {

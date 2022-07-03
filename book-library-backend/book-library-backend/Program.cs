@@ -1,3 +1,6 @@
+using BookLibraryApi.Services;
+using BookLibraryApi.Services.Contracts;
+using Common.Configuration;
 using Common.Mapping;
 using Common.Options;
 using DataAccess;
@@ -9,6 +12,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var authOptions = await Doopler.GetSecretsAsync<AuthOptions>();
+
 builder.Services.AddControllers();
 builder.Services.AddCors();
 builder.Services.AddAutoMapper(config =>
@@ -18,11 +23,17 @@ builder.Services.AddAutoMapper(config =>
 
 builder.Services.AddDbContext<DatabaseContext>(opt =>
 {
-opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.Position));
-builder.Services.Configure<Common.Options.PassOptions>(builder.Configuration.GetSection(Common.Options.PassOptions.Position));
+builder.Services.Configure<PassOptions>(builder.Configuration.GetSection(PassOptions.Position));
+
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthorService, AuthorService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<ICollectionService, CollectionService>();
 
 var issuer = builder.Configuration["Auth:Issuer"];
 var audience = builder.Configuration["Auth:Audience"];
@@ -65,6 +76,7 @@ app.UseCookiePolicy(new CookiePolicyOptions
 });
 
 app.UseCors(opt => opt
+    .WithOrigins("http://localhost:8080")
     .AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()

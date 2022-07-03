@@ -1,0 +1,53 @@
+﻿using Common.Dtos;
+using Common.Filters;
+using Microsoft.AspNetCore.Mvc;
+using BookLibraryApi.Services.Contracts;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+namespace BookLibraryApi.Controllers;
+
+[ApiController]
+[Route("[controller]/[action]")]
+//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+public class ReviewController : ControllerBase
+{
+    private readonly IReviewService reviewService;
+
+    public ReviewController(IReviewService reviewService)
+    {
+        this.reviewService = reviewService;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] ReviewFilter reviewFilter)
+    {
+        return Ok(await reviewService.GetAll(reviewFilter));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(ReviewModel reviewModel)
+    {
+        var result = await reviewService.Create(reviewModel);
+
+        return result.Match<IActionResult>(
+            success => Created(nameof(Create), success),
+            error => BadRequest(error));
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> Update(ReviewModel reviewModel)
+    {
+        var review = await reviewService.Update(reviewModel);
+
+        return Ok(review);
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Remove(ReviewModel reviewModel)
+    {
+        await reviewService.Remove(reviewModel);
+
+        return NoContent();
+    }
+}

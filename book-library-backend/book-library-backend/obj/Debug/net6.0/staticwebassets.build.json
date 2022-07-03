@@ -1,8 +1,8 @@
 {
   "Version": 1,
-  "Hash": "q0sLHl8cuIvLnMKsa2H9iNrOUBI5Tp6FCfIUOxIuqis=",
-  "Source": "book-library-backend",
-  "BasePath": "_content/book-library-backend",
+  "Hash": "YJZ/tmUCDbIDMLNdkdwGltv+OgcRFpPEan5/WaZJzpU=",
+  "Source": "BookLibraryApi",
+  "BasePath": "_content/BookLibraryApi",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],

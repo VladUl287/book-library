@@ -9,5 +9,6 @@ namespace DataAccess.Models
         public string Image { get; set; } = string.Empty;
         public int PagesCount { get; set; }
         public ICollection<Author> Authors { get; set; } = Array.Empty<Author>();
+        public ICollection<Review> Reviews { get; set; } = Array.Empty<Review>();
     }
 }

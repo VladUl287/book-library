@@ -20,6 +20,11 @@
       "ProjectGuid": "6541d1e9-62ba-434b-91e1-63ecba7368dc",
       "DisplayName": "Infrastructure",
       "ColorIndex": 3
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Прочие файлы",
+      "ColorIndex": -1
     }
   },
   "NextColorIndex": 4

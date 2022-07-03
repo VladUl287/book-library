@@ -1,53 +1,75 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Common.Dtos;
+using Common.Filters;
+using Microsoft.AspNetCore.Mvc;
+using BookLibraryApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using book_library_backend.Services.Contracts;
-using Common.Dtos;
 
-namespace book_library_backend.Controllers
+namespace BookLibraryApi.Controllers;
+
+[ApiController]
+[Route("[controller]/[action]")]
+//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+public class BookController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]/[action]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class BookController : ControllerBase
+    private readonly IBookService bookService;
+
+    public BookController(IBookService bookService)
     {
-        private readonly IBookService bookService;
+        this.bookService = bookService;
+    }
 
-        public BookController(IBookService bookService)
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] BookFilter bookFilter)
+    {
+        var books = await bookService.GetAll(bookFilter);
+
+        SetUrl(books.ToList());
+
+        return Ok(books);
+    }
+
+    [HttpGet("{id:Guid}")]
+    public async Task<IActionResult> GetPicture(Guid id)
+    {
+        var path = $@"{Environment.CurrentDirectory}\Files\{id}.jpg";
+
+        return PhysicalFile(path, "image/jpeg");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromForm] CreateBookModel bookModel)
+    {
+        var result = await bookService.Create(bookModel);
+        var action = Url.Action(nameof(Create));
+
+        return result.Match<IActionResult>(
+            success => Created(action, success),
+            error => BadRequest(error));
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> Update(BookModel bookModel)
+    {
+        var book = await bookService.Update(bookModel);
+
+        return Ok(book);
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Remove(BookModel bookModel)
+    {
+        await bookService.Remove(bookModel);
+
+        return NoContent();
+    }
+
+    private void SetUrl(List<BookModel> result)
+    {
+        for (int i = 0; i < result.Count; i++)
         {
-            this.bookService = bookService;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetBooks()
-        {
-            return Ok(await bookService.GetBooks());
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateBook(BookModel bookModel)
-        {
-            var result = await bookService.CreateBook(bookModel);
-
-            return result.Match<IActionResult>(
-                success => NoContent(),
-                error => BadRequest(error));
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> UpdateBook(BookModel bookModel)
-        {
-            await bookService.UpdateBook(bookModel);
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveBook(Guid id, BookModel bookModel)
-        {
-            await bookService.RemoveBook(bookModel);
-
-            return NoContent();
+            result[i].Image = $"{Request.Scheme}://{Request.Host}" +
+               $"{Url.Action(nameof(GetPicture), "Book", new { id = result[i].Id })}";
         }
     }
 }
