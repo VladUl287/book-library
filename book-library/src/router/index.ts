@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import BooksView from '@/views/BooksView.vue'
+import MainView from '@/views/MainView.vue'
 import store from '@/store'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'main',
-    component: BooksView,
+    component: MainView,
     meta: { requiresAuth: true }
   },
   {
@@ -22,28 +22,28 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, _, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (store.getters.isAuthenticated) {
-      next()
-      return
-    }
-    next('/auth')
-  } else {
-    next()
-  }
-})
+// router.beforeEach((to, _, next) => {
+  // if (to.matched.some(record => record.meta.requiresAuth)) {
+  //   if (store.getters.isAuthenticated) {
+  //     next()
+  //     return
+  //   }
+  //   next('/auth')
+  // } else {
+  //   next()
+  // }
+// })
 
-router.beforeEach((to, _, next) => {
-  if (to.matched.some((record) => record.meta.guest)) {
-    if (store.getters.isAuthenticated) {
-      next("/");
-      return;
-    }
-    next();
-  } else {
-    next();
-  }
-});
+// router.beforeEach((to, _, next) => {
+  // if (to.matched.some((record) => record.meta.guest)) {
+  //   if (store.getters.isAuthenticated) {
+  //     next("/");
+  //     return;
+  //   }
+  //   next();
+  // } else {
+  //   next();
+  // }
+// });
 
 export default router

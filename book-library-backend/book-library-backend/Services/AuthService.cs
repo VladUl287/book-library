@@ -2,26 +2,24 @@
 using DataAccess;
 using Common.Dtos;
 using Common.Errors;
-using Common.Options;
 using DataAccess.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using BookLibraryApi.Helpers;
 using BookLibraryApi.Services.Contracts;
+using BookLibraryApi.Configuration;
 
 namespace BookLibraryApi.Services;
 
 public class AuthService : IAuthService
 {
     private readonly DatabaseContext dbContext;
-    private readonly AuthOptions authOptions;
-    private readonly PassOptions passwordOptions;
+    private readonly Config config;
 
-    public AuthService(DatabaseContext dbContext, IOptions<PassOptions> passwordOptions, IOptions<AuthOptions> authOptions)
+    public AuthService(DatabaseContext dbContext, IOptions<Config> config)
     {
         this.dbContext = dbContext;
-        this.authOptions = authOptions.Value;
-        this.passwordOptions = passwordOptions.Value;
+        this.config = config.Value;
     }
 
     public async Task<OneOf<AuthSuccess, Error>> Login(AuthModel authModel)
@@ -35,7 +33,7 @@ public class AuthService : IAuthService
             return Errors.LoginFaild;
         }
 
-        var hashSecret = passwordOptions.HashSecret;
+        var hashSecret = config.HashSecret;
         var hashPassword = HashHelper.Hash(authModel.Password, hashSecret);
 
         if (user.Password != hashPassword)
@@ -43,11 +41,11 @@ public class AuthService : IAuthService
             return Errors.LoginFaild;
         }
 
-        var issuer = authOptions.Issuer;
-        var audience = authOptions.Audience;
-        var accessTokenKey = authOptions.AccessSecret;
-        var refreshTokenKey = authOptions.RefreshSecret;
-        var lifeTime = authOptions.LifeTime;
+        var issuer = config.Issuer;
+        var audience = config.Audience;
+        var accessTokenKey = config.AccessSecret;
+        var refreshTokenKey = config.RefreshSecret;
+        var lifeTime = int.Parse(config.LifeTime);
 
         var accessToken = JwtHelper.Generate(user, accessTokenKey, issuer, audience, DateTime.UtcNow.AddMinutes(lifeTime));
         var refreshToken = JwtHelper.Generate(user, refreshTokenKey, issuer, audience, DateTime.UtcNow.AddDays(lifeTime));
@@ -78,7 +76,7 @@ public class AuthService : IAuthService
             return Errors.LoginFaild;
         }
 
-        var hashSecret = passwordOptions.HashSecret;
+        var hashSecret = config.HashSecret;
         var hashPassword = HashHelper.Hash(authModel.Password, hashSecret);
 
         var user = new User
@@ -112,11 +110,11 @@ public class AuthService : IAuthService
             return Errors.LoginFaild;
         }
 
-        var issuer = authOptions.Issuer;
-        var audience = authOptions.Audience;
-        var accessTokenKey = authOptions.AccessSecret;
-        var refreshTokenKey = authOptions.RefreshSecret;
-        var lifeTime = authOptions.LifeTime;
+        var issuer = config.Issuer;
+        var audience = config.Audience;
+        var accessTokenKey = config.AccessSecret;
+        var refreshTokenKey = config.RefreshSecret;
+        var lifeTime = int.Parse(config.LifeTime);
 
         var valid = JwtHelper.ValidateToken(dbToken.RefreshToken, refreshTokenKey, issuer, audience);
 

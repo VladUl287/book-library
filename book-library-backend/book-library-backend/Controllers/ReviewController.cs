@@ -19,10 +19,10 @@ public class ReviewController : ControllerBase
         this.reviewService = reviewService;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] ReviewFilter reviewFilter)
+    [HttpGet("{bookId:Guid}")]
+    public async Task<IActionResult> GetAll(Guid bookId, [FromQuery] ReviewFilter reviewFilter)
     {
-        return Ok(await reviewService.GetAll(reviewFilter));
+        return Ok(await reviewService.Get(bookId, reviewFilter));
     }
 
     [HttpPost]

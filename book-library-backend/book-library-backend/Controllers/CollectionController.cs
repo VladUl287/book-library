@@ -1,14 +1,16 @@
 ﻿using Common.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using BookLibraryApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Common.Extensions;
+using BookLibraryApi.Services;
+using Common.Filters.Abstractions;
 
 namespace BookLibraryApi.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class CollectionController : ControllerBase
 {
     private readonly ICollectionService collectionService;
@@ -19,9 +21,13 @@ public class CollectionController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(PageFilter pageFilter)
     {
-        return Ok(await collectionService.GetAll());
+        var userId = User.GetLoggedInUserId<Guid>();
+
+        var collections = await collectionService.GetByUser(userId, pageFilter);
+
+        return Ok(collections);
     }
 
     [HttpPost]
@@ -37,15 +43,15 @@ public class CollectionController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> Update(CollectionModel bookModel)
     {
-        var book = await collectionService.Update(bookModel);
+        await collectionService.Update(bookModel);
 
-        return Ok(book);
+        return NoContent();
     }
 
     [HttpDelete]
-    public async Task<IActionResult> Remove(CollectionModel bookModel)
+    public async Task<IActionResult> Remove(Guid userId, Guid collectionId)
     {
-        await collectionService.Remove(bookModel);
+        await collectionService.Remove(userId, collectionId);
 
         return NoContent();
     }

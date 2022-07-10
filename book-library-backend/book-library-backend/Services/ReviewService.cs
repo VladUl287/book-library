@@ -21,6 +21,13 @@ public class ReviewService : IReviewService
         this.dbContext = dbContext;
     }
 
+    public async Task<IEnumerable<ReviewModel>> Get(Guid id, ReviewFilter reviewFilter)
+    {
+        var reviews = await dbContext.Reviews.ToListAsync();
+
+        return mapper.Map<IEnumerable<ReviewModel>>(reviews);
+    }
+
     public async Task<OneOf<ReviewModel, Error>> Create(ReviewModel reviewModel)
     {
         var review = mapper.Map<Review>(reviewModel);
@@ -29,13 +36,6 @@ public class ReviewService : IReviewService
         await dbContext.SaveChangesAsync();
 
         return reviewModel;
-    }
-
-    public async Task<IEnumerable<ReviewModel>> GetAll(ReviewFilter reviewModel)
-    {
-        var reviews = await dbContext.Reviews.ToListAsync();
-
-        return mapper.Map<IEnumerable<ReviewModel>>(reviews);
     }
 
     public async Task Remove(ReviewModel reviewModel)

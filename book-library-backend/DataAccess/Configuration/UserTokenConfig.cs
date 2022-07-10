@@ -9,6 +9,9 @@ namespace DataAccess.Configuration
         public void Configure(EntityTypeBuilder<UserToken> builder)
         {
             builder.HasKey(e => e.Id);
+
+            builder.Property(e => e.RefreshToken)
+                .IsRequired();
         }
     }
 }

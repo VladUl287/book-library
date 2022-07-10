@@ -15,9 +15,10 @@ export type Book = {
     id: Guid,
     name: string,
     description: string,
+    bookmark: boolean,
     image: string,
     pagesCount: number,
-    authorModels: Author[]
+    authors: Author[]
 }
 
 export type Author = {

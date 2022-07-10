@@ -8,7 +8,7 @@ namespace DataAccess.Configuration
     {
         public void Configure(EntityTypeBuilder<Bookmark> builder)
         {
-            builder.HasKey(e => e.Id);
+            builder.HasKey(e => new { e.BookId, e.UserId });
         }
     }
 }

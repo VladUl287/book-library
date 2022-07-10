@@ -15,7 +15,7 @@ public class CollectionConfig : IEntityTypeConfiguration<Collection>
 
         builder.Property(e => e.Description)
             .IsRequired()
-            .HasMaxLength(1500);
+            .HasMaxLength(5000);
 
         builder.Property(e => e.Likes)
             .IsRequired();

@@ -11,6 +11,7 @@ using BookLibraryApi.Helpers;
 using Microsoft.EntityFrameworkCore;
 using BookLibraryApi.Services.Contracts;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using Common.Filters.Abstractions;
 
 namespace BookLibraryApi.Services;
 
@@ -35,7 +36,6 @@ public class BookService : IBookService
         }
 
         var book = mapper.Map<Book>(bookModel);
-        book.Id = Guid.NewGuid();
         book.Image = book.Id.ToString();
 
         using var image = Image.Load(bookModel.Image.OpenReadStream());
@@ -61,17 +61,54 @@ public class BookService : IBookService
             await dbContext.BooksAuthors.AddRangeAsync(booksAuthors);
             await dbContext.SaveChangesAsync();
         }
-        
+
         return mapper.Map<BookModel>(bookEntity.Entity);
     }
 
-    public async Task<IEnumerable<BookModel>> GetAll(BookFilter bookFilter)
+    public async Task<IEnumerable<BookModel>> GetAll(Guid userId, BookFilter bookFilter)
     {
-        var query = dbContext.Books.AsQueryable();
+        var books = await dbContext.Books
+            .SetBookFilter(bookFilter)
+            .SetPageFilter(bookFilter)
+            .Select(x => new BookModel
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Image = x.Image,
+                Description = x.Description,
+                PagesCount = x.PagesCount,
+                Authors = x.BooksAuthors.Select(x => new AuthorModel
+                {
+                    Id = x.AuthorId,
+                    Name = x.Author.Name
+                })
+            })
+            .ToListAsync();
 
-        query = FiltersHelper.SetPageFilter(bookFilter, query);
+        var bookmarks = await dbContext.Bookmarks
+            .Where(x => x.UserId == userId)
+            .ToListAsync();
 
-        return mapper.Map<IEnumerable<BookModel>>(await query.ToListAsync());
+        for (int i = 0; i < books.Count; i++)
+        {
+            if (bookmarks.Any(x => x.BookId == books[i].Id))
+            {
+                books[i].Bookmark = true;
+            }
+        }
+
+        return books;
+    }
+
+    public async Task<IEnumerable<BookModel>> GetByCollection(Guid collectionId, PageFilter pageFilter)
+    {
+        var books = await dbContext.BooksCollections
+            .Where(x => x.CollectionId == collectionId)
+            .SetPageFilter(pageFilter)
+            .Select(x => x.Book)
+            .ToListAsync();
+
+        return mapper.Map<IEnumerable<BookModel>>(books);
     }
 
     public async Task Remove(BookModel bookModel)

@@ -2,6 +2,8 @@
 using Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 using BookLibraryApi.Services.Contracts;
+using Common.Filters.Abstractions;
+using Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -9,7 +11,7 @@ namespace BookLibraryApi.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class BookController : ControllerBase
 {
     private readonly IBookService bookService;
@@ -22,7 +24,8 @@ public class BookController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] BookFilter bookFilter)
     {
-        var books = await bookService.GetAll(bookFilter);
+        var userId = User.GetLoggedInUserId<Guid>();
+        var books = await bookService.GetAll(userId, bookFilter);
 
         SetUrl(books.ToList());
 
@@ -30,11 +33,13 @@ public class BookController : ControllerBase
     }
 
     [HttpGet("{id:Guid}")]
-    public async Task<IActionResult> GetPicture(Guid id)
+    public async Task<IActionResult> GetAll([FromRoute] Guid id, [FromQuery] PageFilter pageFilter)
     {
-        var path = $@"{Environment.CurrentDirectory}\Files\{id}.jpg";
+        var books = await bookService.GetByCollection(id, pageFilter);
 
-        return PhysicalFile(path, "image/jpeg");
+        SetUrl(books.ToList());
+
+        return Ok(books);
     }
 
     [HttpPost]
@@ -69,7 +74,8 @@ public class BookController : ControllerBase
         for (int i = 0; i < result.Count; i++)
         {
             result[i].Image = $"{Request.Scheme}://{Request.Host}" +
-               $"{Url.Action(nameof(GetPicture), "Book", new { id = result[i].Id })}";
+               //$"{Url.Action("GetPicture", "Picture", new { id = result[i].Id })}";
+               $"{Url.Action("GetPicture", "Picture", new { id = Guid.Parse("6a6e32c6-9f56-4306-b109-3c5b91ab5bd2") })}";
         }
     }
 }

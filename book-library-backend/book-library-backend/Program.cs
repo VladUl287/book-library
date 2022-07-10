@@ -1,8 +1,8 @@
+using BookLibraryApi.Configuration;
 using BookLibraryApi.Services;
 using BookLibraryApi.Services.Contracts;
 using Common.Configuration;
 using Common.Mapping;
-using Common.Options;
 using DataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -12,7 +12,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var authOptions = await Doopler.GetSecretsAsync<AuthOptions>();
+var config = await Doopler.GetSecretsAsync<Config>();
 
 builder.Services.AddControllers();
 builder.Services.AddCors();
@@ -23,11 +23,10 @@ builder.Services.AddAutoMapper(config =>
 
 builder.Services.AddDbContext<DatabaseContext>(opt =>
 {
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    opt.UseNpgsql(config.DBConnection);
 });
 
-builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.Position));
-builder.Services.Configure<PassOptions>(builder.Configuration.GetSection(PassOptions.Position));
+builder.Services.Configure<Config>(cfg => cfg = config);
 
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -35,9 +34,7 @@ builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ICollectionService, CollectionService>();
 
-var issuer = builder.Configuration["Auth:Issuer"];
-var audience = builder.Configuration["Auth:Audience"];
-var key = Encoding.UTF8.GetBytes(builder.Configuration["Auth:AccessSecret"]);
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.AccessSecret));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
   .AddJwtBearer(options =>
   {
@@ -45,13 +42,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
       options.TokenValidationParameters = new TokenValidationParameters
       {
           ValidateIssuer = true,
-          ValidIssuer = issuer,
+          ValidIssuer = config.Issuer,
           ValidateAudience = true,
-          ValidAudience = audience,
+          ValidAudience = config.Audience,
           ValidateLifetime = true,
           ClockSkew = TimeSpan.Zero,
           ValidateIssuerSigningKey = true,
-          IssuerSigningKey = new SymmetricSecurityKey(key),
+          IssuerSigningKey = key,
       };
   });
 

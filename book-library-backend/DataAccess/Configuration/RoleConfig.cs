@@ -18,7 +18,7 @@ public class RoleConfig : IEntityTypeConfiguration<Role>
         {
             new Role
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.Parse("9f948cd2-1b60-4456-8f3f-e972e00ca1e1"),
                 Name = "User"
             },
             new Role

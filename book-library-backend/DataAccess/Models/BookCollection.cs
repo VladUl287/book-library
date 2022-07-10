@@ -1,8 +1,6 @@
-﻿using DataAccess.Abstractions;
+﻿namespace DataAccess.Models;
 
-namespace DataAccess.Models;
-
-public class BookCollection : EntityWithId<Guid>
+public class BookCollection
 {
     public Guid BookId { get; set; }
     public Book Book { get; set; }

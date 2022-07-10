@@ -2,7 +2,7 @@
 
 namespace DataAccess.Models;
 
-public class Bookmark : EntityWithId<Guid>
+public class Bookmark
 {
     public Guid UserId { get; set; }
     public User User { get; set; }

@@ -1,30 +1,43 @@
 <template>
-  <nav>
-    <router-link to="/">Main</router-link> |
-    <router-link to="/auth">Auth</router-link>
-  </nav>
-  <router-view/>
+  <NavBar />
+  <div class="body-wrap">
+    <router-view />
+  </div>
 </template>
+
+<script setup lang="ts">
+import NavBar from "@/components/NavBar.vue";
+
+</script>
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  /* font-family: Avenir, Helvetica, Arial, sans-serif; */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: #000;
+  height: 100vh;
   text-align: center;
-  color: #2c3e50;
+  box-sizing: border-box;
+  background-color: #343a40;
 }
 
-nav {
-  padding: 30px;
+.body-wrap {
+  height: calc(100% - 54px);
+  overflow-y: auto;
 }
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
+::-webkit-scrollbar {
+  width: 5px;
 }
 
-nav a.router-link-exact-active {
-  color: #42b983;
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background-color: gray;
 }
 </style>

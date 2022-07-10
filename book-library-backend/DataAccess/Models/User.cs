@@ -8,6 +8,6 @@ namespace DataAccess.Models
         public string Password { get; set; } = string.Empty;
         public Guid RoleId { get; set; }
         public Role Role { get; set; }
-        public ICollection<Review> Reviews { get; set; } = Array.Empty<Review>();
+        public ICollection<Review> Reviews { get; set; }
     }
 }
