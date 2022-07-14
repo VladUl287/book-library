@@ -16,6 +16,7 @@ var config = await Doopler.GetSecretsAsync<Config>();
 
 builder.Services.AddControllers();
 builder.Services.AddCors();
+
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<MappingProfile>();
@@ -26,13 +27,13 @@ builder.Services.AddDbContext<DatabaseContext>(opt =>
     opt.UseNpgsql(config.DBConnection);
 });
 
-builder.Services.Configure<Config>(cfg => cfg = config);
-
-builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IAuthorService, AuthorService>();
-builder.Services.AddScoped<IReviewService, ReviewService>();
-builder.Services.AddScoped<ICollectionService, CollectionService>();
+builder.Services.AddTransient<IBookService, BookService>();
+builder.Services.AddTransient<IAuthService, AuthService>();
+builder.Services.AddTransient<IAuthorService, AuthorService>();
+builder.Services.AddTransient<IReviewService, ReviewService>();
+builder.Services.AddTransient<IBookmarkService, BookmarkService>();
+builder.Services.AddTransient<ICollectionService, CollectionService>();
+builder.Services.AddSingleton<Config>(config);
 
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.AccessSecret));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

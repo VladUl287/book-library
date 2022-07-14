@@ -10,19 +10,21 @@ namespace BookLibraryApi.Controllers;
 [ApiController]
 [Route("[controller]/[action]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class BookmarkController : ControllerBase
+public class BookmarksController : ControllerBase
 {
     private readonly IBookmarkService bookmarkService;
 
-    public BookmarkController(IBookmarkService bookmarkService)
+    public BookmarksController(IBookmarkService bookmarkService)
     {
         this.bookmarkService = bookmarkService;
     }
 
-    [HttpGet("{id:Guid}")]
-    public async Task<IEnumerable<BookModel>> Get([FromRoute] Guid id)
+    [HttpGet]
+    public async Task<IEnumerable<BookModel>> Get()
     {
-        return await bookmarkService.Get(id);
+        var userId = User.GetLoggedInUserId<Guid>();
+
+        return await bookmarkService.Get(userId);
     }
 
     [HttpPost("{bookId:Guid}")]
@@ -32,7 +34,7 @@ public class BookmarkController : ControllerBase
 
         await bookmarkService.Add(userId, bookId);
 
-        return Ok();
+        return NoContent();
     }
 
     [HttpPost("{bookId:Guid}")]
@@ -42,6 +44,6 @@ public class BookmarkController : ControllerBase
 
         await bookmarkService.Remove(userId, bookId);
 
-        return Ok();
+        return NoContent();
     }
 }

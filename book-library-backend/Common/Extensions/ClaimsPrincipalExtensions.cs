@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.ComponentModel;
+using System.Security.Claims;
 
 namespace Common.Extensions
 {
@@ -17,9 +18,9 @@ namespace Common.Extensions
             {
                 return (T)Convert.ChangeType(loggedInUserId, typeof(T));
             }
-            else if (typeof(T) == typeof(int) || typeof(T) == typeof(long))
+            else if (typeof(T) == typeof(Guid))
             {
-                return loggedInUserId is not null ? (T)Convert.ChangeType(loggedInUserId, typeof(T)) : (T)Convert.ChangeType(0, typeof(T));
+                return (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromInvariantString(loggedInUserId.Value);
             }
             else
             {

@@ -1,8 +1,6 @@
 ﻿using Common.Dtos;
 using Common.Extensions;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
 using BookLibraryApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,6 +13,10 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService authService;
     private const string REFRESH_TOKEN = "refresh_token";
+    private static readonly CookieOptions cookieOptions = new()
+    {
+        Expires = new DateTimeOffset(DateTime.UtcNow.AddDays(30))
+    };
 
     public AuthController(IAuthService authService)
     {
@@ -29,10 +31,7 @@ public class AuthController : ControllerBase
         return loginResult.Match<IActionResult>(
             success =>
             {
-                Response.Cookies.Append(REFRESH_TOKEN, success.RefreshToken, new CookieOptions
-                {
-                    Expires = new DateTimeOffset(DateTime.UtcNow.AddDays(30))
-                });
+                Response.Cookies.Append(REFRESH_TOKEN, success.RefreshToken, cookieOptions);
 
                 return Ok(success);
             },
@@ -45,7 +44,7 @@ public class AuthController : ControllerBase
         var registerResult = await authService.Register(authModel);
 
         return registerResult.Match<IActionResult>(
-            success => Created("Register", success),
+            success => CreatedAtAction(nameof(Register), success),
             error => BadRequest(error));
     }
 
@@ -53,10 +52,9 @@ public class AuthController : ControllerBase
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> Logout()
     {
-        var refreshToken = Request.Cookies[REFRESH_TOKEN];
         var userId = User.GetLoggedInUserId<Guid>();
 
-        if (!string.IsNullOrEmpty(refreshToken) && userId != default)
+        if (userId != default)
         {
             Response.Cookies.Delete(REFRESH_TOKEN);
 
@@ -76,18 +74,11 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
 
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(refreshToken);
-        var userId = Guid.Parse(jwtSecurityToken.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value);
-
-        var refreshResult = await authService.Refresh(userId, refreshToken);
+        var refreshResult = await authService.Refresh(refreshToken);
         return refreshResult.Match<IActionResult>(
             success =>
             {
-                Response.Cookies.Append(REFRESH_TOKEN, success.RefreshToken, new CookieOptions
-                {
-                    Expires = new DateTimeOffset(DateTime.UtcNow.AddDays(30))
-                });
+                Response.Cookies.Append(REFRESH_TOKEN, success.RefreshToken, cookieOptions);
 
                 return Ok(success);
             },

@@ -9,7 +9,7 @@ namespace BookLibraryApi.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ReviewController : ControllerBase
 {
     private readonly IReviewService reviewService;
@@ -31,7 +31,7 @@ public class ReviewController : ControllerBase
         var result = await reviewService.Create(reviewModel);
 
         return result.Match<IActionResult>(
-            success => Created(nameof(Create), success),
+            success => CreatedAtAction(nameof(Create), success),
             error => BadRequest(error));
     }
 

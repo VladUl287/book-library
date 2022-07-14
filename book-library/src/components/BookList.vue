@@ -7,18 +7,20 @@
 </template>
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { useStore } from 'vuex';
-import { reactive, ref } from '@vue/reactivity';
+import { computed } from '@vue/reactivity';
 import BookCard from './BookCard.vue';
 import { Book } from '@/common/contracts';
+import { BooksActions } from '@/store/enums';
+import { useStore } from '@/store';
 
 const store = useStore();
+const books = computed<Book[]>(() => store.getters.getBooks);
 
 onMounted(() => {
-    store.dispatch('GetAll');
+    if (books.value.length == 0) {
+        store.dispatch(BooksActions.GET_ALL_BOOKS);
+    }
 })
-
-const books = reactive<Book[]>(store.getters.Books);
 
 </script>
 

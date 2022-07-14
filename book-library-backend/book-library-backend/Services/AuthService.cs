@@ -3,11 +3,12 @@ using DataAccess;
 using Common.Dtos;
 using Common.Errors;
 using DataAccess.Models;
-using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using BookLibraryApi.Helpers;
 using BookLibraryApi.Services.Contracts;
 using BookLibraryApi.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace BookLibraryApi.Services;
 
@@ -16,16 +17,17 @@ public class AuthService : IAuthService
     private readonly DatabaseContext dbContext;
     private readonly Config config;
 
-    public AuthService(DatabaseContext dbContext, IOptions<Config> config)
+    public AuthService(DatabaseContext dbContext, Config config)
     {
         this.dbContext = dbContext;
-        this.config = config.Value;
+        this.config = config;
     }
 
     public async Task<OneOf<AuthSuccess, Error>> Login(AuthModel authModel)
     {
         var user = await dbContext.Users
             .Include(e => e.Role)
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Email == authModel.Email);
 
         if (user is null)
@@ -33,22 +35,17 @@ public class AuthService : IAuthService
             return Errors.LoginFaild;
         }
 
-        var hashSecret = config.HashSecret;
-        var hashPassword = HashHelper.Hash(authModel.Password, hashSecret);
+        var hashPassword = HashHelper.Hash(authModel.Password, config.HashSecret);
 
         if (user.Password != hashPassword)
         {
             return Errors.LoginFaild;
         }
 
-        var issuer = config.Issuer;
-        var audience = config.Audience;
-        var accessTokenKey = config.AccessSecret;
-        var refreshTokenKey = config.RefreshSecret;
         var lifeTime = int.Parse(config.LifeTime);
 
-        var accessToken = JwtHelper.Generate(user, accessTokenKey, issuer, audience, DateTime.UtcNow.AddMinutes(lifeTime));
-        var refreshToken = JwtHelper.Generate(user, refreshTokenKey, issuer, audience, DateTime.UtcNow.AddDays(lifeTime));
+        var accessToken = JwtHelper.Generate(user, config.AccessSecret, config.Issuer, config.Audience, DateTime.UtcNow.AddHours(lifeTime));
+        var refreshToken = JwtHelper.Generate(user, config.RefreshSecret, config.Issuer, config.Audience, DateTime.UtcNow.AddDays(lifeTime));
 
         await dbContext.UsersTokens.AddAsync(
             new UserToken
@@ -69,21 +66,18 @@ public class AuthService : IAuthService
     public async Task<OneOf<AuthSuccess, Error>> Register(AuthModel authModel)
     {
         var exists = await dbContext.Users.AnyAsync(e => e.Email == authModel.Email);
-        var role = await dbContext.Roles.FirstOrDefaultAsync();
 
         if (exists)
         {
-            return Errors.LoginFaild;
+            return Errors.UserWithEmailAlreadyExists;
         }
 
-        var hashSecret = config.HashSecret;
-        var hashPassword = HashHelper.Hash(authModel.Password, hashSecret);
+        var hashPassword = HashHelper.Hash(authModel.Password, config.HashSecret);
 
         var user = new User
         {
             Email = authModel.Email,
-            Password = hashPassword,
-            RoleId = role.Id
+            Password = hashPassword
         };
 
         await dbContext.Users.AddAsync(user);
@@ -95,11 +89,20 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<OneOf<AuthSuccess, Error>> Refresh(Guid userId, string token)
+    public async Task<OneOf<AuthSuccess, Error>> Refresh(string token)
     {
         if (string.IsNullOrEmpty(token))
         {
-            return Errors.LoginFaild;
+            return Errors.TokenInvalid;
+        }
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(token);
+        var claimValue = jwtSecurityToken.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+
+        if (!Guid.TryParse(claimValue, out Guid userId))
+        {
+            return Errors.TokenInvalid;
         }
 
         var dbToken = await dbContext.UsersTokens
@@ -107,7 +110,7 @@ public class AuthService : IAuthService
 
         if (dbToken is null)
         {
-            return Errors.LoginFaild;
+            return Errors.TokenInvalid;
         }
 
         var issuer = config.Issuer;
@@ -123,18 +126,23 @@ public class AuthService : IAuthService
             dbContext.UsersTokens.Remove(dbToken);
             await dbContext.SaveChangesAsync();
 
-            return Errors.LoginFaild;
+            return Errors.TokenInvalid;
         }
 
         var user = await dbContext.Users
             .Include(e => e.Role)
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == dbToken.UserId);
 
-        var accessToken = JwtHelper.Generate(user, accessTokenKey, issuer, audience, DateTime.UtcNow.AddMinutes(lifeTime));
+        if (user is null)
+        {
+            return Errors.TokenInvalid;
+        }
+
+        var accessToken = JwtHelper.Generate(user, accessTokenKey, issuer, audience, DateTime.UtcNow.AddHours(lifeTime));
         var refreshToken = JwtHelper.Generate(user, refreshTokenKey, issuer, audience, DateTime.UtcNow.AddDays(lifeTime));
 
         dbToken.RefreshToken = refreshToken;
-        dbContext.UsersTokens.Update(dbToken);
         await dbContext.SaveChangesAsync();
 
         return new AuthSuccess
@@ -148,6 +156,7 @@ public class AuthService : IAuthService
     public async Task Logout(Guid userId)
     {
         var userToken = await dbContext.UsersTokens
+            .AsNoTracking()
             .FirstOrDefaultAsync(e => e.UserId == userId);
 
         if (userToken is null)

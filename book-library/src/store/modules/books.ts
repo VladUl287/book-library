@@ -1,74 +1,47 @@
 import instance from '@/http';
 import { Book } from '@/common/contracts';
-import { Guid } from 'guid-typescript';
-
-type BookState = {
-    books: Book[]
-    filters: BooksFilter
-}
-
-type BooksFilter = {
-    name?: string,
-    authorId?: Guid,
-    genres?: Guid[],
-    rating?: number,
-    beginYear?: number,
-    endYear?: number
-}
+import { BooksFilter, BookState, RootState } from '../types';
+import { ActionTree, GetterTree, Module, MutationTree, Store } from 'vuex';
+import { getUrlParams } from '../helpers';
+import { BooksActions, BooksMutations } from '../enums';
 
 const state: BookState = {
     books: [],
     filters: {}
 };
 
-const getters = {
-    Books: (state: BookState) => state.books,
-};
+const getters: GetterTree<BookState, RootState> = {};
 
-const actions = {
-    async GetAll({ commit }: any) {
+const actions: ActionTree<BookState, RootState> = {
+    async [BooksActions.GET_ALL_BOOKS]({ commit }: any): Promise<void> {
         const result = await instance.get<Book[]>('book/getAll')
         await commit('setBooks', result.data);
     },
-    async GetWithFilters({ commit }: any) {
+    async [BooksActions.GET_BOOKS_WITH_FILTERS]({ commit }: any): Promise<void> {
         const params = getUrlParams(state.filters);
         const result = await instance.get<Book[]>('book/getAll', { params })
         await commit('setBooks', result.data);
-    },
-    async AddBookmark(_: any, bookId: Guid) {
-        await instance.post('bookmark/add/' + bookId.toString())
-    },
-    async RemoveBookmark(_: any, bookId: Guid) {
-        await instance.post('bookmark/remove/' + bookId.toString())
     }
 };
 
-const mutations = {
-    updateBook(state: BookState, data: Book) {
-        const index = state.books.findIndex(x => x.id == data.id);
-        if(index) {
-            state.books[index] = data;
-        }
-    },
-    setBooks(state: BookState, data: Book[]) {
+const mutations: MutationTree<BookState> = {
+    [BooksMutations.SET_BOOKS](state: BookState, data: Book[]) {
         state.books = data
     },
-    setFilters(state: BookState, data: BooksFilter) {
+    [BooksMutations.SET_FILTERS](state: BookState, data: BooksFilter) {
         state.filters = data;
+    },
+    [BooksMutations.UPDATE_BOOK](state: BookState, data: Book) {
+        const index = state.books.findIndex(x => x.id == data.id);
+        if (index) {
+            state.books[index] = data;
+        }
     }
 };
 
-export default {
+export const books: Module<BookState, RootState> = {
     state,
     getters,
     actions,
     mutations
 };
-
-const getUrlParams = (form: object): URLSearchParams => {
-    const init: Record<string, string> = {}
-    for (const [key, value] of Object.entries(form)) {
-        init[key] = value.toString();
-    }
-    return new URLSearchParams(init);
-}

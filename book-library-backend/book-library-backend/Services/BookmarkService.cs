@@ -32,7 +32,9 @@ public class BookmarkService : IBookmarkService
 
     public async Task Remove(Guid userId, Guid bookId)
     {
-        var bookmark = await dbContext.Bookmarks.FirstOrDefaultAsync(x => x.UserId == userId && x.BookId == bookId);
+        var bookmark = await dbContext.Bookmarks
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.BookId == bookId);
 
         if (bookmark is not null)
         {
@@ -46,6 +48,7 @@ public class BookmarkService : IBookmarkService
         var books = await dbContext.Bookmarks
             .Where(x => x.UserId == userId)
             .Select(x => x.Book)
+            .AsNoTracking()
             .ToListAsync();
 
         return mapper.Map<IEnumerable<BookModel>>(books);

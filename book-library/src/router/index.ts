@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import MainView from '@/views/MainView.vue'
+import BookmarkView from '@/views/BookmarkView.vue'
 import store from '@/store'
 
 const routes: Array<RouteRecordRaw> = [
@@ -7,6 +8,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'main',
     component: MainView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/bookmarks',
+    name: 'bookmark',
+    component: BookmarkView,
     meta: { requiresAuth: true }
   },
   {

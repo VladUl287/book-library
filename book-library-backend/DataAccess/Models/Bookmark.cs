@@ -8,4 +8,5 @@ public class Bookmark
     public User User { get; set; }
     public Guid BookId { get; set; }
     public Book Book { get; set; }
+    public DateTime DateCreate { get; set; }
 }

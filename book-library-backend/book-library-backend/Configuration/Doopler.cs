@@ -6,7 +6,7 @@ namespace Common.Configuration;
 
 public class Doopler
 {
-    private const string DopplerToken = "dp.st.dev.X9D06BP2EQ3sAYEKY9bW4ZMFtyGlT4H0bdLpfhjTUeM";
+    private const string DopplerToken = "dp.st.dev.X3gSg3zLztbKYmquPx2tXRaMqORTT4GMA5R32nkZ841";
     private const string Address = "https://api.doppler.com/v3/configs/config/secrets/download?format=json";
 
     public static async Task<T> GetSecretsAsync<T>()
@@ -18,7 +18,14 @@ public class Doopler
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuthHeaderValue);
 
         using var streamTask = await client.GetStreamAsync(Address);
-        var s = streamTask.ToString();
-        return await JsonSerializer.DeserializeAsync<T>(streamTask);
+
+        var result = await JsonSerializer.DeserializeAsync<T>(streamTask);
+
+        if (result is null)
+        {
+            throw new Exception("Ошибка получения конфигурации приложения.");
+        }
+
+        return result;
     }
 }

@@ -30,7 +30,6 @@ namespace DataAccess
             {
                 Console.WriteLine(msg);
             });
-            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             base.OnConfiguring(optionsBuilder);
         }
 

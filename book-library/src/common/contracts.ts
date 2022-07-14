@@ -36,3 +36,8 @@ export type RegisterForm = {
     password: string,
     confirmPassword: string
 }
+
+export type Genre = {
+    id: Guid,
+    name: string
+}

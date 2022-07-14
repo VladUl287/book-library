@@ -7,6 +7,7 @@ using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using BookLibraryApi.Services.Contracts;
 using Common.Filters;
+using Common.Extensions;
 
 namespace BookLibraryApi.Services;
 
@@ -21,9 +22,21 @@ public class ReviewService : IReviewService
         this.dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<ReviewModel>> Get(Guid id, ReviewFilter reviewFilter)
+    public async Task<IEnumerable<ReviewModel>> Get(Guid bookId, ReviewFilter reviewFilter)
     {
-        var reviews = await dbContext.Reviews.ToListAsync();
+        var reviews = await dbContext.Reviews
+            .SetPageFilter(reviewFilter)
+            .SetReviewFilter(reviewFilter)
+            .Where(x => x.BookId == bookId)
+            .Select(x => new ReviewModel
+            {
+                Id = x.Id,
+                Text = x.Text,
+                Rating = x.Rating,
+                BookId = x.BookId
+            })
+            .AsNoTracking()
+            .ToListAsync();
 
         return mapper.Map<IEnumerable<ReviewModel>>(reviews);
     }

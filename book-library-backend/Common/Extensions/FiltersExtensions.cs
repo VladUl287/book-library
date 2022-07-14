@@ -1,10 +1,10 @@
-﻿using Common.Filters;
-using Common.Filters.Abstractions;
+﻿using Common.Filters.Abstractions;
+using Common.Filters;
 using DataAccess.Models;
 
-namespace BookLibraryApi.Helpers;
+namespace Common.Extensions;
 
-public static class FiltersHelper
+public static class FiltersExtensions
 {
     public static IQueryable<T> SetPageFilter<T>(this IQueryable<T> reviews, PageFilter pageFilter)
     {
@@ -22,11 +22,6 @@ public static class FiltersHelper
 
     public static IQueryable<Book> SetBookFilter(this IQueryable<Book> query, BookFilter bookFilter)
     {
-        if (bookFilter.AuthorId.HasValue)
-        {
-            var authorId = bookFilter.AuthorId.Value;
-            query = query.Where(x => x.BooksAuthors.Any(x => x.AuthorId == authorId));
-        }
         if (bookFilter.BeginYear.HasValue)
         {
             query = query.Where(x => x.Year > bookFilter.BeginYear.Value);
@@ -46,6 +41,16 @@ public static class FiltersHelper
         else if (bookFilter.Genres.Length > 1)
         {
             query = query.Where(x => x.BooksGenres.Intersect(x.BooksGenres.Where(x => bookFilter.Genres.Contains(x.GenreId))).Any());
+        }
+
+        return query;
+    }
+
+    public static IQueryable<Review> SetReviewFilter(this IQueryable<Review> query, ReviewFilter reviewFilter)
+    {
+        if (reviewFilter.ViewsSort)
+        {
+            query = query.OrderBy(x => x.Views);
         }
 
         return query;

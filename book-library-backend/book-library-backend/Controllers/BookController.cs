@@ -33,7 +33,17 @@ public class BookController : ControllerBase
     }
 
     [HttpGet("{id:Guid}")]
-    public async Task<IActionResult> GetAll([FromRoute] Guid id, [FromQuery] PageFilter pageFilter)
+    public async Task<IActionResult> GetByAuthor([FromRoute] Guid id, [FromQuery] PageFilter pageFilter)
+    {
+        var books = await bookService.GetByAuthor(id, pageFilter);
+
+        SetUrl(books.ToList());
+
+        return Ok(books);
+    }
+
+    [HttpGet("{id:Guid}")]
+    public async Task<IActionResult> GetByCollection([FromRoute] Guid id, [FromQuery] PageFilter pageFilter)
     {
         var books = await bookService.GetByCollection(id, pageFilter);
 

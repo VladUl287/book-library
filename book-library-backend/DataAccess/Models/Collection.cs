@@ -10,5 +10,6 @@ public class Collection : EntityWithId<Guid>
     public int Likes { get; set; }
     public Guid UserId { get; set; }
     public User User { get; set; }
+    public DateTime DateCreate { get; set; }
     public ICollection<BookCollection> BooksCollections { get; set; } = Array.Empty<BookCollection>();
 }

@@ -4,6 +4,18 @@
             <li>
                 <router-link to="/" class="nav-item">Главная</router-link>
             </li>
+            <li>
+                <router-link to="/" class="nav-item">Новинки</router-link>
+            </li>
+            <li>
+                <router-link to="/" class="nav-item">Рекомендации</router-link>
+            </li>
+            <li>
+                <router-link to="/bookmarks" class="nav-item">Закладки</router-link>
+            </li>
+            <li>
+                <router-link to="/" class="nav-item">Коллекции</router-link>
+            </li>
             <li class="nav-account">
                 <router-link to="/" class="nav-item">ulyanovskiy.01@mail.ru</router-link>
             </li>

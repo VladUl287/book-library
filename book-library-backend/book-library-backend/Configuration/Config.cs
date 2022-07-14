@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace BookLibraryApi.Configuration;
+
 public class Config
 {
     [JsonPropertyName("ISSUER")]

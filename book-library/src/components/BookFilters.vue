@@ -1,10 +1,14 @@
 <template>
     <div class="books-filters-wrap">
-        <input type="text" class="books-input" placeholder="название книги...">
-        <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            <i class="bi bi-filter"></i>
-        </button>
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="filters-header">
+            <input type="text" class="books-input" placeholder="название книги...">
+            <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                <i class="bi bi-filter"></i>
+            </button>
+        </div>
+        <div class="filters.visible">
+        </div>
+        <!-- <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -20,20 +24,38 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script setup lang="ts">
+import { Genre } from '@/common/contracts';
+import { Guid } from 'guid-typescript';
+
+const value: Genre[] = [];
+
+const options: Genre[] = [
+    {
+        id: Guid.create(),
+        name: 'Vue.js'
+    },
+    {
+        id: Guid.create(),
+        name: 'Adonis'
+    }
+];
 
 </script>
 
 <style>
 .books-filters-wrap {
-    display: flex;
-    column-gap: .4em;
-    align-items: center;
     padding: .5em 16px 0 16px;
+}
+
+.books-filters-wrap .filters-header {
+    display: flex;
+    align-items: center;
+    column-gap: .5em;
 }
 
 .books-filters-wrap .books-input {
@@ -49,5 +71,13 @@
     border-radius: 4px;
     border: 1px solid #fff;
     background-color: transparent;
+}
+
+.books-filters-wrap .filters {
+    /* display: none; */
+}
+
+.books-filters-wrap .filters.visible {
+    display: block;
 }
 </style>

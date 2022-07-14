@@ -10,7 +10,7 @@ namespace BookLibraryApi.Services.Contracts
 
         Task<OneOf<AuthSuccess, Error>> Register(AuthModel authModel);
 
-        Task<OneOf<AuthSuccess, Error>> Refresh(Guid userId, string token);
+        Task<OneOf<AuthSuccess, Error>> Refresh(string token);
 
         Task Logout(Guid userId);
     }

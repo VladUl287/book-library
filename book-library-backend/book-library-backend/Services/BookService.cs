@@ -7,7 +7,6 @@ using Common.Filters;
 using Common.Extensions;
 using DataAccess.Models;
 using SixLabors.ImageSharp;
-using BookLibraryApi.Helpers;
 using Microsoft.EntityFrameworkCore;
 using BookLibraryApi.Services.Contracts;
 using SixLabors.ImageSharp.Formats.Jpeg;
@@ -83,15 +82,17 @@ public class BookService : IBookService
                     Name = x.Author.Name
                 })
             })
+            .AsNoTracking()
             .ToListAsync();
 
         var bookmarks = await dbContext.Bookmarks
             .Where(x => x.UserId == userId)
+            .Select(x => x.BookId)
             .ToListAsync();
 
         for (int i = 0; i < books.Count; i++)
         {
-            if (bookmarks.Any(x => x.BookId == books[i].Id))
+            if (bookmarks.Contains(books[i].Id))
             {
                 books[i].Bookmark = true;
             }
@@ -100,12 +101,25 @@ public class BookService : IBookService
         return books;
     }
 
+    public async Task<IEnumerable<BookModel>> GetByAuthor(Guid id, PageFilter pageFilter)
+    {
+        var books = await dbContext.BooksAuthors
+            .Where(x => x.AuthorId == id)
+            .SetPageFilter(pageFilter)
+            .Select(x => x.Book)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mapper.Map<IEnumerable<BookModel>>(books);
+    }
+
     public async Task<IEnumerable<BookModel>> GetByCollection(Guid collectionId, PageFilter pageFilter)
     {
         var books = await dbContext.BooksCollections
             .Where(x => x.CollectionId == collectionId)
             .SetPageFilter(pageFilter)
             .Select(x => x.Book)
+            .AsNoTracking()
             .ToListAsync();
 
         return mapper.Map<IEnumerable<BookModel>>(books);

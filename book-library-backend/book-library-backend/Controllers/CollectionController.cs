@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Common.Extensions;
 using BookLibraryApi.Services;
-using Common.Filters.Abstractions;
+using Common.Filters;
 
 namespace BookLibraryApi.Controllers;
 
@@ -21,23 +21,37 @@ public class CollectionController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(PageFilter pageFilter)
+    public async Task<IActionResult> GetAll(CollectionFilter collection)
     {
-        var userId = User.GetLoggedInUserId<Guid>();
-
-        var collections = await collectionService.GetByUser(userId, pageFilter);
-
-        return Ok(collections);
+        return Ok(await collectionService.GetAll(collection));
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CollectionModel bookModel)
     {
-        var result = await collectionService.Create(bookModel);
+        var userId = User.GetLoggedInUserId<Guid>();
+
+        var result = await collectionService.Create(userId, bookModel);
 
         return result.Match<IActionResult>(
-            success => Created(nameof(Create), success),
+            success => CreatedAtAction(nameof(Create), success),
             error => BadRequest(error));
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> AddBook([FromQuery] Guid collectionId, [FromQuery] Guid bookId)
+    {
+        await collectionService.AddBook(collectionId, bookId);
+
+        return NoContent();
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> RemoveBook([FromQuery] Guid collectionId, [FromQuery] Guid bookId)
+    {
+        await collectionService.RemoveBook(collectionId, bookId);
+
+        return NoContent();
     }
 
     [HttpPut]

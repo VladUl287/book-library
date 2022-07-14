@@ -56,7 +56,7 @@ const addBookmark = async (id: Guid) => {
         await store.dispatch('AddBookmark', id);
         let book = props.book;
         book.bookmark = true;
-        store.commit('pdateBook', book);
+        store.commit('updateBook', book);
     } catch {
         console.log();
     }
