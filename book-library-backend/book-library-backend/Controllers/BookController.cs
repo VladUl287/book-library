@@ -56,10 +56,9 @@ public class BookController : ControllerBase
     public async Task<IActionResult> Create([FromForm] CreateBookModel bookModel)
     {
         var result = await bookService.Create(bookModel);
-        var action = Url.Action(nameof(Create));
 
         return result.Match<IActionResult>(
-            success => Created(action, success),
+            success => CreatedAtAction(nameof(Create), success),
             error => BadRequest(error));
     }
 

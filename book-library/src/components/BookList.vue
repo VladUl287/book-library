@@ -1,6 +1,6 @@
 <template>
     <div class="books-list">
-        <div v-for="(book, i) in books" :key="i">
+        <div v-for="book in books" :key="book.id.toString()">
             <BookCard :book="book" />
         </div>
     </div>
@@ -10,16 +10,14 @@ import { onMounted } from 'vue';
 import { computed } from '@vue/reactivity';
 import BookCard from './BookCard.vue';
 import { Book } from '@/common/contracts';
-import { BooksActions } from '@/store/enums';
 import { useStore } from '@/store';
+import { BooksActions } from '@/store/common/enums';
 
 const store = useStore();
 const books = computed<Book[]>(() => store.getters.getBooks);
 
-onMounted(() => {
-    if (books.value.length == 0) {
-        store.dispatch(BooksActions.GET_ALL_BOOKS);
-    }
+onMounted(() => { 
+    store.dispatch(BooksActions.GET_ALL_BOOKS);
 })
 
 </script>

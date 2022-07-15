@@ -44,9 +44,9 @@ public class BookService : IBookService
         var bookEntity = await dbContext.Books.AddAsync(book);
         await dbContext.SaveChangesAsync();
 
-        if (bookModel.AuthorModels.Length > 0)
+        if (bookModel.Authors.Length > 0)
         {
-            var authors = mapper.Map<Author[]>(bookModel.AuthorModels);
+            var authors = mapper.Map<Author[]>(bookModel.Authors);
             var booksAuthors = new List<BookAuthor>(authors.Length);
             for (int i = 0; i < authors.Length; i++)
             {
@@ -80,7 +80,7 @@ public class BookService : IBookService
                 {
                     Id = x.AuthorId,
                     Name = x.Author.Name
-                })
+                }).ToArray()
             })
             .AsNoTracking()
             .ToListAsync();

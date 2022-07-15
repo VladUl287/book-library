@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Common.Dtos.Abstractions;
+using Microsoft.AspNetCore.Http;
 
-namespace Common.Dtos
+namespace Common.Dtos;
+
+public class CreateBookModel : BookBase
 {
-    public class CreateBookModel
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public IFormFile Image { get; set; }
-        public int PagesCount { get; set; }
-        public AuthorModel[] AuthorModels { get; set; } = Array.Empty<AuthorModel>();
-    }
+    public IFormFile Image { get; set; }
 }

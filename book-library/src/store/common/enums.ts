@@ -7,6 +7,8 @@ export enum BooksMutations {
 export enum BooksActions {
     GET_ALL_BOOKS = 'getAllBooks',
     GET_BOOKS_WITH_FILTERS = 'getBooksWithFilters',
+    GET_BOOKS_BY_AUTHOR = 'getBooksByAuthor',
+    GET_BOOKS_BY_COLLECTION = 'getBookByCollection',
 }
 
 export enum AuthMutations {
@@ -37,4 +39,25 @@ export enum GenreMutations {
 
 export enum GenreActions {
     GET_ALL_GENRES = 'getAllGenres',
+}
+
+export enum CollectionActions {
+    GET_ALL_COLLECTIONS = 'getAllCollection',
+    GET_USER_COLLECTIONS = 'getUserCollections',
+    CREATE_COLLECTION = 'createCollection',
+    ADD_BOOK = 'addBook',
+    REMOVE_BOOK = 'removeBook'
+}
+
+export enum CollectionMutations {
+    SET_COLLECTIONS = 'setCollections',
+    SET_FILTERS = 'setFilters'
+}
+
+export enum ReviewActions {
+    GET_ALL_REVIEWS = 'getAllReviews'
+}
+
+export enum ReviewMutations {
+    SET_REVIEWS = 'setReviews'
 }

@@ -22,6 +22,10 @@ public static class FiltersExtensions
 
     public static IQueryable<Book> SetBookFilter(this IQueryable<Book> query, BookFilter bookFilter)
     {
+        if (!string.IsNullOrEmpty(bookFilter.Name))
+        {
+            query = query.Where(x => x.Name.Equals(bookFilter.Name, StringComparison.CurrentCultureIgnoreCase));
+        }
         if (bookFilter.BeginYear.HasValue)
         {
             query = query.Where(x => x.Year > bookFilter.BeginYear.Value);
@@ -58,7 +62,7 @@ public static class FiltersExtensions
 
     public static IQueryable<Collection> SetCollectionFilter(this IQueryable<Collection> query, CollectionFilter bookFilter)
     {
-        if (bookFilter.ByPopular)
+        if (bookFilter.ViewsSort)
         {
             query = query.OrderBy(x => x.Views);
         }

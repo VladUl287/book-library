@@ -20,6 +20,7 @@ namespace DataAccess
         public DbSet<BookAuthor> BooksAuthors { get; init; }
         public DbSet<BookGenre> BooksGenres { get; init; }
         public DbSet<BookCollection> BooksCollections { get; init; }
+        public DbSet<ReadList> ReadList { get; init; }
         public DbSet<User> Users { get; init; }
         public DbSet<Role> Roles { get; init; }
         public DbSet<UserToken> UsersTokens { get; init; }
@@ -49,6 +50,7 @@ namespace DataAccess
             modelBuilder.ApplyConfiguration(new RoleConfig());
             modelBuilder.ApplyConfiguration(new UserConfig());
             modelBuilder.ApplyConfiguration(new UserTokenConfig());
+            modelBuilder.ApplyConfiguration(new ReadListConfig());
 
             var books = new List<Book>(100);
             var auhtors = new List<Author>(100);
