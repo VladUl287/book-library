@@ -142,4 +142,64 @@ public class BookService : IBookService
 
         return bookModel;
     }
+
+    public async Task<OneOf<BookRead, Error>> MarkAsRead(Guid userId, Guid bookId)
+    {
+        var exists = await dbContext.Books.AnyAsync(x => x.Id == bookId);
+
+        if (!exists)
+        {
+            return Errors.BookNotExists;
+        }
+
+        var bookRead = new BookRead
+        {
+            BookId = bookId,
+            UserId = bookId
+        };
+
+        await dbContext.ReadList.AddAsync(bookRead);
+        await dbContext.SaveChangesAsync();
+
+        return bookRead;
+    }
+
+    public async Task<IEnumerable<BookModel>> GetRecommendations(Guid userId, PageFilter pageFilter)
+    {
+        var reviews = await dbContext.Reviews
+            .AsNoTracking()
+            .Where(x => x.UserId == userId)
+            .Select(x => new { Rating = x.Rating, Genres = x.Book.BooksGenres.Select(x => x.GenreId) })
+            .OrderBy(x => x.Rating)
+            .ToListAsync();
+
+        if (reviews.Count < 10)
+        {
+            return null;
+        }
+
+        var genres = reviews.Take(10).Select(x => x.Genres).ToArray();
+        var genreList = new List<Guid>();
+        for (int i = 0; i < 10; i++)
+        {
+            genreList.AddRange(genres[i]);
+        }
+
+        genreList.Sort();
+        genreList.Distinct();
+
+        if (genreList.Count > 0)
+        {
+            var query = dbContext.Books.AsQueryable();
+            var queryGenres = dbContext.BooksGenres.Where(x => genreList.Contains(x.GenreId));
+
+            query = query
+                .SetPageFilter(pageFilter)
+                .Where(x => x.BooksGenres.Intersect(queryGenres).Any());
+
+            return mapper.Map<IEnumerable<BookModel>>(await query.ToListAsync());
+        }
+
+        return null;
+    }
 }

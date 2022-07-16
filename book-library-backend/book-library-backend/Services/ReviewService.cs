@@ -1,7 +1,7 @@
 ﻿using OneOf;
 using AutoMapper;
 using DataAccess;
-using Common.Dtos;          
+using Common.Dtos;
 using Common.Errors;
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
@@ -38,32 +38,73 @@ public class ReviewService : IReviewService
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<IEnumerable<ReviewModel>>(reviews);
+        return reviews;
     }
 
-    public async Task<OneOf<ReviewModel, Error>> Create(ReviewModel reviewModel)
+    public async Task<OneOf<ReviewModel, Error>> Create(Guid userId, ReviewModel reviewModel)
     {
         var review = mapper.Map<Review>(reviewModel);
+        review.UserId = userId;
+        review.DateCreate = DateTime.UtcNow;
 
         await dbContext.Reviews.AddAsync(review);
-        await dbContext.SaveChangesAsync();
+
+        var book = await dbContext.Books
+            .FirstOrDefaultAsync(e => e.Id == reviewModel.BookId);
+
+        if (book is not null)
+        {
+            var reviews = await dbContext.Reviews
+                .AsNoTracking()
+                .Where(x => x.BookId == reviewModel.BookId)
+                .Select(x => x.Rating)
+                .ToListAsync();
+
+            book.Rating = reviews.Sum() / reviews.Count;
+            await dbContext.SaveChangesAsync();
+
+            var bookRead = new BookRead
+            {
+                BookId = book.Id,
+                UserId = userId
+            };
+
+            await dbContext.ReadList.AddAsync(bookRead);
+            await dbContext.SaveChangesAsync();
+        }
 
         return reviewModel;
     }
 
-    public async Task Remove(ReviewModel reviewModel)
+    public async Task Remove(Guid userId, Guid reviewId)
     {
-        var review = mapper.Map<Review>(reviewModel);
+        var review = await dbContext.Reviews
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == reviewId);
+
+        if (review is null)
+        {
+            return;
+        }
 
         dbContext.Reviews.Remove(review);
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<ReviewModel> Update(ReviewModel reviewModel)
+    public async Task<ReviewModel> Update(Guid userId, ReviewModel reviewModel)
     {
-        var review = mapper.Map<Review>(reviewModel);
+        var review = await dbContext.Reviews
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.BookId == reviewModel.BookId);
 
-        dbContext.Reviews.Update(review);
+        if (review is null)
+        {
+            return null;
+        }
+
+        var reviewUpdate = mapper.Map<Review>(reviewModel);
+
+        dbContext.Reviews.Update(reviewUpdate);
         await dbContext.SaveChangesAsync();
 
         return reviewModel;

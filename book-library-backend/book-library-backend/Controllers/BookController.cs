@@ -52,6 +52,16 @@ public class BookController : ControllerBase
         return Ok(books);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetRecommendations([FromQuery] PageFilter pageFilter)
+    {
+        var userId = User.GetLoggedInUserId<Guid>();
+
+        var books = await bookService.GetRecommendations(userId, pageFilter);
+
+        return Ok(books);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromForm] CreateBookModel bookModel)
     {
@@ -59,6 +69,18 @@ public class BookController : ControllerBase
 
         return result.Match<IActionResult>(
             success => CreatedAtAction(nameof(Create), success),
+            error => BadRequest(error));
+    }
+
+    [HttpPatch("{id:Guid}")]
+    public async Task<IActionResult> MarkAsRead([FromRoute] Guid id)
+    {
+        var userId = User.GetLoggedInUserId<Guid>();
+
+        var result = await bookService.MarkAsRead(userId, id);
+
+        return result.Match<IActionResult>(
+            success => NoContent(),
             error => BadRequest(error));
     }
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using BookLibraryApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Common.Extensions;
 
 namespace BookLibraryApi.Controllers;
 
@@ -28,7 +29,9 @@ public class ReviewController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(ReviewModel reviewModel)
     {
-        var result = await reviewService.Create(reviewModel);
+        var userId = User.GetLoggedInUserId<Guid>();
+
+        var result = await reviewService.Create(userId, reviewModel);
 
         return result.Match<IActionResult>(
             success => CreatedAtAction(nameof(Create), success),

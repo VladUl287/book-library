@@ -18,7 +18,6 @@
 </template>
 
 <script setup lang="ts">
-import store from '@/store'
 import { ref } from '@vue/reactivity';
 import { useRouter } from 'vue-router';
 
@@ -33,7 +32,6 @@ const onCreate = async (e: Event) => {
     e.preventDefault();
 
     try {
-        await store.dispatch("CreateBook", bookForm.value);
         router.push("/");
     } catch (error) {
         console.log();

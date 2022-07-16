@@ -7,8 +7,8 @@ namespace BookLibraryApi.Services.Contracts;
 
 public interface IReviewService
 {
-    Task<IEnumerable<ReviewModel>> Get(Guid id, ReviewFilter reviewFilter);
-    Task<OneOf<ReviewModel, Error>> Create(ReviewModel reviewModel);
-    Task<ReviewModel> Update(ReviewModel reviewModel);
-    Task Remove(ReviewModel reviewModel);
+    Task<IEnumerable<ReviewModel>> Get(Guid bookId, ReviewFilter reviewFilter);
+    Task<OneOf<ReviewModel, Error>> Create(Guid userId, ReviewModel reviewModel);
+    Task<ReviewModel> Update(Guid userId, ReviewModel reviewModel);
+    Task Remove(Guid userId, Guid reviewId);
 }

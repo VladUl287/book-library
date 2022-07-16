@@ -1,8 +1,6 @@
-﻿using DataAccess.Abstractions;
+﻿namespace DataAccess.Models;
 
-namespace DataAccess.Models;
-
-public class ReadList
+public class BookRead
 {
     public Guid UserId { get; set; }
     public User User { get; set; }
