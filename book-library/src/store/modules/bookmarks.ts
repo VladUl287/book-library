@@ -1,40 +1,38 @@
-import { Module, GetterTree, ActionTree, MutationTree, ActionContext as AC } from 'vuex';
-import { BookmarkActions, BookmarkMutations } from '../common/enums';
-import instance from '@/http';
-import { Book } from '@/common/contracts';
-import { Guid } from 'guid-typescript';
-import { BookmarkState, RootState } from '../common/types';
+import { store } from "..";
+import instance from "@/http";
+import { Book } from "@/common/contracts";
+import { getModule } from 'vuex-module-decorators';
+import { Action, Module, Mutation, VuexModule } from "vuex-module-decorators";
+import { Guid } from "guid-typescript";
 
-const state: BookmarkState = {
-    bookmarks: []
-}
+@Module({ dynamic: true, store: store, name: 'bookmarkModule', preserveState: localStorage.getItem('vuex') !== null })
+class BookmarksModule extends VuexModule {
+    private _bookmarks: Book[] = [];
 
-const getters: GetterTree<BookmarkState, RootState> = {
-    getBookmarks: (state: BookmarkState) => state.bookmarks
-}
+    get bookmarks(): Book[] {
+        return this._bookmarks
+    }
 
-const actions: ActionTree<BookmarkState, RootState> = {
-    async [BookmarkActions.GET_BOOKMARKS]({ commit }: AC<BookmarkState, RootState>): Promise<void> {
+    @Mutation
+    setBookmarks(bookmarks: Book[]): void {
+        this._bookmarks = bookmarks
+    }
+
+    @Action
+    async getBookmarks(): Promise<void> {
         const result = await instance.get<Book[]>('bookmarks/get')
-        commit(BookmarkMutations.SET_BOOKMARKS, result.data);
-    },
-    async [BookmarkActions.ADD_BOOKMARK](_, bookId: Guid): Promise<void> {
+        this.setBookmarks(result.data);
+    }
+
+    @Action
+    async addBookmark(bookId: Guid): Promise<void> {
         await instance.post('bookmarks/add/' + bookId)
-    },
-    async [BookmarkActions.REMOVER_BOOKMARK](_, bookId: Guid): Promise<void> {
+    }
+
+    @Action
+    async removeBookmark(bookId: Guid): Promise<void> {
         await instance.post('bookmarks/remove/' + bookId)
     }
 }
 
-const mutations: MutationTree<BookmarkState> = {
-    [BookmarkMutations.SET_BOOKMARKS](state: BookmarkState, data: Book[]) {
-        state.bookmarks = data
-    },
-}
-
-export const bookmarks: Module<BookmarkState, RootState> = {
-    state,
-    getters,
-    actions,
-    mutations
-}
+export const bookmarksModule = getModule(BookmarksModule, store)

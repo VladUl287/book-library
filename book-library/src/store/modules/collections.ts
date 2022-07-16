@@ -1,56 +1,70 @@
-import { getFormData } from '../common/helpers';
-import { Collection, CollectionManageBook } from './../../common/contracts';
-import { CollectionActions, CollectionMutations } from '../common/enums';
-import { CollectionState, CollectionFilter } from '../common/types';
+import { store } from '..';
 import instance from '@/http';
-import { RootState } from '../common/types';
-import { ActionTree, GetterTree, Module, MutationTree, ActionContext as AC } from 'vuex';
+import { getFormData } from '../common/helpers';
 import { getUrlParams } from '../common/helpers';
+import { Collection, CollectionManageBook } from './../../common/contracts';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import { CollectionFilter } from '../common/types';
 
-const state: CollectionState = {
-    collections: [],
-    userCollections: [],
-    filters: {} as CollectionFilter
-};
+@Module({ dynamic: true, store: store, name: 'collectionsModule', preserveState: localStorage.getItem('vuex') !== null })
+class CollectionsModule extends VuexModule {
+    private _collections: Collection[] = []
+    private _userCollections: Collection[] = []
+    private _filters: CollectionFilter = {}
 
-const getters: GetterTree<CollectionState, RootState> = {};
+    get collections(): Collection[] {
+        return this._collections
+    }
 
-const actions: ActionTree<CollectionState, RootState> = {
-    async [CollectionActions.GET_ALL_COLLECTIONS]({ commit }: AC<CollectionState, RootState>): Promise<void> {
-        const params = getUrlParams(state.filters);
+    get userCollections(): Collection[] {
+        return this._userCollections
+    }
+
+    @Mutation
+    setCollections(collections: Collection[]): void {
+        this._collections = collections
+    }
+
+    @Mutation
+    setUserCollections(collections: Collection[]): void {
+        this._userCollections = collections
+    }
+
+    @Mutation
+    setFilters(filters: CollectionFilter): void {
+        this._filters = filters
+    }
+
+    @Action
+    async GetAllCollections(): Promise<void> {
+        const params = getUrlParams(this._filters)
         const result = await instance.get<Collection[]>('collection/getAll', { params })
-        commit(CollectionMutations.SET_COLLECTIONS, result.data);
-    },
-    async [CollectionActions.GET_USER_COLLECTIONS]({ commit }: AC<CollectionState, RootState>): Promise<void> {
+        this.setCollections(result.data)
+    }
+
+    @Action
+    async GetUserCollections(): Promise<void> {
         const result = await instance.get<Collection[]>('collection/getUserCollections')
-        commit(CollectionMutations.SET_COLLECTIONS, result.data);
-    },
-    async [CollectionActions.CREATE_COLLECTION](_, collection: Collection): Promise<void> {
-        const formData = getFormData(collection);
+        this.setUserCollections(result.data)
+    }
+
+    @Action
+    async CreateCollection(collection: Collection): Promise<void> {
+        const formData = getFormData(collection)
         await instance.post('collection/create', formData)
-    },
-    async [CollectionActions.ADD_BOOK](_, manage: CollectionManageBook): Promise<void> {
-        const formData = getFormData(manage);
-        const result = await instance.put('collection/addBook', formData)
-    },
-    async [CollectionActions.REMOVE_BOOK](_, manage: CollectionManageBook): Promise<void> {
-        const formData = getFormData(manage);
-        const result = await instance.put('collection/removeBook', formData)
     }
-};
 
-const mutations: MutationTree<CollectionState> = {
-    [CollectionMutations.SET_COLLECTIONS](state: CollectionState, data: Collection[]) {
-        state.collections = data
-    },
-    [CollectionMutations.SET_FILTERS](state: CollectionState, data: CollectionFilter) {
-        state.filters = data
+    @Action
+    async AddBook(manage: CollectionManageBook): Promise<void> {
+        const formData = getFormData(manage)
+        await instance.put('collection/addBook', formData)
     }
-};
 
-export const collections: Module<CollectionState, RootState> = {
-    state,
-    getters,
-    actions,
-    mutations
+    @Action
+    async RemoveBook(manage: CollectionManageBook): Promise<void> {
+        const formData = getFormData(manage)
+        await instance.put('collection/removeBook', formData)
+    }
 }
+
+export const collectionsModule = getModule(CollectionsModule, store)

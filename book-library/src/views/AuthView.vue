@@ -34,11 +34,10 @@
 </template>
 
 <script setup lang="ts">
-import store from '@/store'
 import { ref } from '@vue/reactivity';
 import { useRouter } from 'vue-router';
+import { authModule } from '@/store/modules/auth';
 import { LoginForm, RegisterForm } from '@/common/contracts';
-import { AuthActions } from '@/store/common/enums';
 
 const router = useRouter();
 
@@ -57,7 +56,7 @@ const onLogin = async (e: Event) => {
     e.preventDefault();
 
     try {
-        await store.dispatch(AuthActions.LOGIN, loginForm.value);
+        await authModule.Login(loginForm.value)
         router.push("/");
     } catch (error) {
         console.log();
@@ -70,7 +69,7 @@ const onRegister = async (e: Event) => {
     e.preventDefault();
 
     try {
-        await store.dispatch("Register", registerForm.value);
+        await authModule.Register(registerForm.value);
         router.push("/");
     } catch (error) {
         console.log();

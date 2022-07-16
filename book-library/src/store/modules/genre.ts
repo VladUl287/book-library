@@ -1,32 +1,26 @@
-import { GenreMutations } from '../common/enums';
-import { GetterTree, Module, ActionContext as AC } from 'vuex';
-import { Genre } from '@/common/contracts';
-import instance from '@/http';
-import { GenreState, RootState } from '../common/types';
-import { GenreActions } from '../common/enums';
+import { store } from "..";
+import instance from "@/http";
+import { Genre } from "@/common/contracts";
+import { Module, VuexModule, Mutation, Action, getModule } from "vuex-module-decorators";
 
-const state: GenreState = {
-    genres: [],
-}
+@Module({ dynamic: true, store: store, name: 'booksModule', preserveState: localStorage.getItem('vuex') !== null })
+class GenresModule extends VuexModule {
+    private _genres: Genre[] = [];
 
-const getters: GetterTree<GenreState, RootState> = {}
+    get genres(): Genre[] {
+        return this._genres
+    }
 
-const actions = {
-    async [GenreActions.GET_ALL_GENRES]({ commit }: AC<GenreState, RootState>): Promise<void> {
+    @Mutation
+    setGenres(genres: Genre[]) {
+        this._genres = genres;
+    }
+
+    @Action
+    async getGenres() {
         const result = await instance.get<Genre[]>('genre/getAll')
-        commit(GenreMutations.SET_GENRES, result.data);
+        this.setGenres(result.data)
     }
 }
 
-const mutations = {
-    [GenreMutations.SET_GENRES](state: GenreState, data: Genre[]): void {
-        state.genres = data
-    }
-}
-
-export const genre: Module<GenreState, RootState> = {
-    state,
-    getters,
-    actions,
-    mutations
-}
+export const booksModule = getModule(GenresModule, store)

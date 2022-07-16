@@ -1,58 +1,64 @@
-import { AuthActions, AuthMutations } from '../common/enums';
-import { ActionTree, GetterTree, MutationTree, Module, ActionContext as AC } from 'vuex';
-import instance from '@/http';
-import axios from 'axios';
-import { RegisterForm, LoginForm, AuthSuccess } from '@/common/contracts';
-import { getFormData } from '../common/helpers';
-import { AuthState, RootState } from '../common/types';
+import axios from "axios";
+import { store } from "..";
+import instance from "@/http";
+import { getFormData } from "../common/helpers";
+import { AuthSuccess, LoginForm, RegisterForm } from "@/common/contracts";
+import { Module, VuexModule, Mutation, Action, getModule } from "vuex-module-decorators";
 
-const state: AuthState = {
-    email: undefined,
-    access_token: undefined
-}
+@Module({ dynamic: true, store: store, name: 'authModule', preserveState: localStorage.getItem('vuex') !== null })
+class AuthModule extends VuexModule {
+    private _email?: string;
+    private _access_token?: string;
 
-const getters: GetterTree<AuthState, RootState> = {
-    isAuthenticated: (state: AuthState) => !!state.access_token,
-    getAccessToken: (state: AuthState) => state.access_token,
-    getUser: (state: AuthState) => state.email
-}
+    get email(): string | undefined {
+        return this._email
+    }
 
-const actions: ActionTree<AuthState, RootState> = {
-    async [AuthActions.REGISTER](_: AC<AuthState, RootState>, form: RegisterForm): Promise<void> {
+    get accessToken(): string | undefined {
+        return this._access_token
+    }
+
+    get isAuthenticated(): boolean {
+        return !!this._access_token;
+    }
+
+    @Mutation
+    setAuth(auth: AuthSuccess): void {
+        this._email = auth.email
+        this._access_token = auth.accessToken
+    }
+
+    @Mutation
+    logout(): void {
+        this._email = this._access_token = undefined
+    }
+
+    @Action
+    async Register(form: RegisterForm): Promise<void> {
         const user = getFormData(form);
         await instance.post<AuthSuccess>('auth/register', user)
-    },
-    async [AuthActions.LOGIN]({ commit }: AC<AuthState, RootState>, form: LoginForm): Promise<void> {
+    }
+
+    @Action
+    async Login(form: LoginForm): Promise<void> {
         const user = getFormData(form);
-        const result = await instance.post<AuthSuccess>('auth/login', user);
-        commit(AuthMutations.SET_AUTH, result.data);
-    },
-    async [AuthActions.LOGOUT]({ commit }: AC<AuthState, RootState>): Promise<void> {
-        commit(AuthMutations.LOGOUT)
+        const result = await instance.post<AuthSuccess>('auth/login', user)
+        this.setAuth(result.data);
+    }
+
+    @Action
+    async Logout(): Promise<void> {
         await instance.post('auth/logout')
-    },
-    async [AuthActions.REFRESH]({ commit }: AC<AuthState, RootState>): Promise<void> {
+        this.logout();
+    }
+
+    async Refresh(): Promise<void> {
         const result = await axios.post<AuthSuccess>(instance.defaults.baseURL + 'auth/refresh', {},
-            {
-                withCredentials: true
-            });
-        commit(AuthMutations.SET_AUTH, result.data);
+        {
+            withCredentials: true
+        });
+        this.setAuth(result.data);
     }
 }
 
-const mutations: MutationTree<AuthState> = {
-    [AuthMutations.SET_AUTH](state: AuthState, data: AuthSuccess): void {
-        state.email = data.email
-        state.access_token = data.accessToken
-    },
-    [AuthMutations.LOGOUT](state: AuthState): void {
-        state.email = state.access_token = undefined
-    },
-}
-
-export const auth: Module<AuthState, RootState> = {
-    state,
-    getters,
-    actions,
-    mutations
-}
+export const authModule = getModule(AuthModule, store)

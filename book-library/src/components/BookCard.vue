@@ -32,9 +32,9 @@
 </template>
 <script setup lang="ts">
 import { Guid } from 'guid-typescript';
-import { defineProps, PropType, ref } from 'vue';
-import { useStore } from 'vuex';
 import { Book } from '@/common/contracts';
+import { defineProps, PropType, ref } from 'vue';
+import { bookmarksModule } from '@/store/modules/bookmarks';
 
 const props = defineProps({
     book: {
@@ -42,8 +42,6 @@ const props = defineProps({
         required: true
     }
 });
-
-const store = useStore();
 
 const infoVisible = ref(false);
 
@@ -53,21 +51,15 @@ const toogleInfo = () => {
 
 const addBookmark = async (id: Guid) => {
     try {
-        await store.dispatch('AddBookmark', id);
-        let book = props.book;
-        book.bookmark = true;
-        store.commit('updateBook', book);
+        await bookmarksModule.addBookmark(id)
     } catch {
-        console.log();
+        console.log()
     }
 }
 
 const removeBookmark = async (id: Guid) => {
     try {
-        await store.dispatch('RemoveBookmark', id);
-        let book = props.book;
-        book.bookmark = false;
-        store.commit('updateBook', book);
+        await bookmarksModule.removeBookmark(id)
     } catch (error) {
         console.log();
     }

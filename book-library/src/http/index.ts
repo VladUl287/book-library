@@ -1,16 +1,15 @@
-import { AuthActions } from './../store/common/enums';
-import axios from 'axios';
+import { authModule } from './../store/modules/auth';
+import axios, { AxiosRequestConfig } from 'axios';
 import router from '@/router';
-import store from '@/store';
 
 const instance = axios.create({
     baseURL: 'https://localhost:7031/'
 });
 
-instance.interceptors.request.use((config: any) => {
-    if (store.getters.getAccessToken) {
+instance.interceptors.request.use((config: AxiosRequestConfig<any>) => {
+    if (authModule.accessToken) {
         config.headers = {
-            Authorization: 'Bearer ' + store.getters.getAccessToken
+            Authorization: 'Bearer ' + authModule.accessToken
         };
     }
     return config;
@@ -21,11 +20,11 @@ instance.interceptors.response.use(undefined, async (error: any) => {
     if (error.response.status === 401 && error.config && !refresh) {
         refresh = true;
         try {
-            await store.dispatch(AuthActions.REFRESH);
+            await authModule.Refresh();
             return instance.request(error.config);
         } catch {
             try {
-                await store.dispatch(AuthActions.LOGOUT);
+                await authModule.Logout();
             } finally {
                 router.push('/auth');
             }

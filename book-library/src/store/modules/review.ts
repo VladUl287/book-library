@@ -1,34 +1,30 @@
-import { getUrlParams } from '../common/helpers';
-import { Review } from './../../common/contracts';
-import { ReviewState, ReviewFilter, RootState } from '../common/types';
-import { ReviewMutations, ReviewActions } from '../common/enums';
-import { GetterTree, Module, ActionContext as AC, ActionTree } from 'vuex';
-import instance from '@/http';
+import { store } from "..";
+import instance from "@/http";
+import { Review } from "@/common/contracts";
+import { ReviewFilter } from "../common/types";
+import { getUrlParams } from "../common/helpers";
+import { VuexModule, Mutation, Action, getModule, Module } from "vuex-module-decorators";
 
-const state: ReviewState = {
-    reviews: [],
-    filters: {} as ReviewFilter
-}
+@Module({ dynamic: true, store: store, name: 'reviewsModule', preserveState: localStorage.getItem('vuex') !== null })
+class ReviewsModule extends VuexModule {
+    private _reviews: Review[] = []
+    private _filters: ReviewFilter = {}
 
-const getters: GetterTree<ReviewState, RootState> = {}
+    get reviews(): Review[] {
+        return this._reviews
+    }
 
-const actions: ActionTree<ReviewState, RootState> = {
-    async [ReviewActions.GET_ALL_REVIEWS]({ commit }: AC<ReviewState, RootState>): Promise<void> {
-        const params = getUrlParams(state.filters);
+    @Mutation
+    setReviews(reviews: Review[]): void {
+        this._reviews = reviews;
+    }
+
+    @Action
+    async getReviews(): Promise<void> {
+        const params = getUrlParams(this._filters);
         const result = await instance.get<Review[]>('review/getAll', { params })
-        commit(ReviewMutations.SET_REVIEWS, result.data);
+        this.setReviews(result.data);
     }
 }
 
-const mutations = {
-    [ReviewMutations.SET_REVIEWS](state: ReviewState, data: Review[]): void {
-        state.reviews = data
-    }
-}
-
-export const reviews: Module<ReviewState, RootState> = {
-    state,
-    getters,
-    actions,
-    mutations
-}
+export const reviewsModule = getModule(ReviewsModule, store)

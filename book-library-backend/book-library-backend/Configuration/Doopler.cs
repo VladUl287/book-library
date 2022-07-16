@@ -6,7 +6,7 @@ namespace Common.Configuration;
 
 public class Doopler
 {
-    private const string DopplerToken = "dp.st.dev.oB4tNtvlcJcNfxvTIGfYIqU3e4onB3WlVqRghEI9gc6";
+    private const string DopplerToken = "dp.st.dev.35c5r5s8JPkyZGJF0FXDinKX2r17SHPXg5BXyldwUni";
     private const string Address = "https://api.doppler.com/v3/configs/config/secrets/download?format=json";
 
     public static async Task<T> GetSecretsAsync<T>()

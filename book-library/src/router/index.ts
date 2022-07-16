@@ -1,7 +1,7 @@
+import { authModule } from './../store/modules/auth';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import MainView from '@/views/MainView.vue'
 import BookmarkView from '@/views/BookmarkView.vue'
-import store from '@/store'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -30,8 +30,10 @@ const router = createRouter({
 })
 
 router.beforeEach((to, _, next) => {
+  console.log(authModule);
+  
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (store.getters.isAuthenticated) {
+    if (authModule.isAuthenticated) {
       next()
       return
     }
@@ -43,7 +45,7 @@ router.beforeEach((to, _, next) => {
 
 router.beforeEach((to, _, next) => {
   if (to.matched.some((record) => record.meta.guest)) {
-    if (store.getters.isAuthenticated) {
+    if (authModule.isAuthenticated) {
       next("/");
       return;
     }

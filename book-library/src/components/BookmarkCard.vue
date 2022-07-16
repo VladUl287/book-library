@@ -26,16 +26,16 @@ const props = defineProps({
 
 const store = useStore();
 
-const removeBookmark = async (id: Guid) => {
-    try {
-        await store.dispatch('RemoveBookmark', id);
-        let book = props.book;
-        book.bookmark = false;
-        store.commit('updateBook', book);
-    } catch (error) {
-        console.log();
-    }
-}
+// const removeBookmark = async (id: Guid) => {
+//     try {
+//         await store.dispatch('RemoveBookmark', id);
+//         let book = props.book;
+//         book.bookmark = false;
+//         store.commit('updateBook', book);
+//     } catch (error) {
+//         console.log();
+//     }
+// }
 
 </script>
 

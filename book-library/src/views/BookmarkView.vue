@@ -10,14 +10,12 @@
 import { onMounted } from 'vue';
 import { computed } from '@vue/reactivity';
 import BookmarkCard from '@/components/BookmarkCard.vue';
-import { useStore } from '@/store';
-import { BookmarkActions } from '@/store/common/enums';
+import { bookmarksModule } from '@/store/modules/bookmarks';
 
-const store = useStore();
-const books = computed(() => store.getters.getBookmarks);
+const books = computed(() => bookmarksModule.bookmarks);
 
 onMounted(() => {
-  store.dispatch(BookmarkActions.GET_BOOKMARKS);
+  bookmarksModule.getBookmarks();
 });
 
 </script>

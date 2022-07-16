@@ -16,6 +16,9 @@
             <li>
                 <router-link to="/" class="nav-item">Коллекции</router-link>
             </li>
+            <li>
+                <router-link to="/" class="nav-item">Список прочитанных</router-link>
+            </li>
             <li class="nav-account">
                 <router-link to="/" class="nav-item">ulyanovskiy.01@mail.ru</router-link>
             </li>

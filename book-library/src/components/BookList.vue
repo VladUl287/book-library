@@ -10,14 +10,12 @@ import { onMounted } from 'vue';
 import { computed } from '@vue/reactivity';
 import BookCard from './BookCard.vue';
 import { Book } from '@/common/contracts';
-import { useStore } from '@/store';
-import { BooksActions } from '@/store/common/enums';
+import { booksModule } from '@/store/modules/books';
 
-const store = useStore();
-const books = computed<Book[]>(() => store.getters.getBooks);
+const books = computed<Book[]>(() => booksModule.books!);
 
-onMounted(() => { 
-    store.dispatch(BooksActions.GET_ALL_BOOKS);
+onMounted(() => {
+    booksModule.getBooks();
 })
 
 </script>
