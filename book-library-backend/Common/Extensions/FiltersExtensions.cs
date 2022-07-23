@@ -24,7 +24,7 @@ public static class FiltersExtensions
     {
         if (!string.IsNullOrEmpty(bookFilter.Name))
         {
-            query = query.Where(x => x.Name.Equals(bookFilter.Name, StringComparison.CurrentCultureIgnoreCase));
+            query = query.Where(x => x.Name.ToLower().Contains(bookFilter.Name.ToLower()));
         }
         if (bookFilter.BeginYear.HasValue)
         {

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Domain.ActionFilters;
+namespace BookLibraryApi.ActionFilters;
 
 public class ValidatorAsyncActionFilter : IAsyncActionFilter
 {

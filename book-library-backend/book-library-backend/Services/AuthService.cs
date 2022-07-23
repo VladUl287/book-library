@@ -65,9 +65,7 @@ public class AuthService : IAuthService
 
     public async Task<OneOf<AuthSuccess, Error>> Register(AuthModel authModel)
     {
-        var exists = await dbContext.Users.AnyAsync(e => e.Email == authModel.Email);
-
-        if (exists)
+        if (await dbContext.Users.AnyAsync(e => e.Email == authModel.Email))
         {
             return Errors.UserWithEmailAlreadyExists;
         }
@@ -96,11 +94,9 @@ public class AuthService : IAuthService
             return Errors.TokenInvalid;
         }
 
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(token);
-        var claimValue = jwtSecurityToken.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+        string id = JwtHelper.GetIdFromToken(token);
 
-        if (!Guid.TryParse(claimValue, out Guid userId))
+        if (!Guid.TryParse(id, out Guid userId))
         {
             return Errors.TokenInvalid;
         }

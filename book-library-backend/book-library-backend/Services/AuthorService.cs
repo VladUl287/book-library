@@ -22,9 +22,7 @@ public class AuthorService : IAuthorService
 
     public async Task<OneOf<AuthorModel, Error>> Create(AuthorModel authorModel)
     {
-        var exists = await dbContext.Authors.AnyAsync(e => e.Name == authorModel.Name);
-
-        if (exists)
+        if (await dbContext.Authors.AnyAsync(e => e.Name == authorModel.Name))
         {
             return Errors.LoginFaild;
         }

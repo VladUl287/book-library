@@ -1,18 +1,17 @@
 using BookLibraryApi.Configuration;
 using BookLibraryApi.Services;
 using BookLibraryApi.Services.Contracts;
-using Domain.ActionFilters;
 using Domain.Configuration;
 using Domain.Mapping;
 using Domain.Validators;
 using DataAccess;
-using Domain.Validators;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using BookLibraryApi.ActionFilters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +26,10 @@ builder.Services.AddFluentValidation(config =>
 {
     config.RegisterValidatorsFromAssemblyContaining<AuthValidator>();
     config.RegisterValidatorsFromAssemblyContaining<BookCreateValidatior>();
+    config.RegisterValidatorsFromAssemblyContaining<AuthorValidator>();
+    config.RegisterValidatorsFromAssemblyContaining<CollectionCreateValidator>();
+    config.RegisterValidatorsFromAssemblyContaining<GenreValidator>();
+    config.RegisterValidatorsFromAssemblyContaining<ReviweValidator>();
 });
 
 builder.Services.AddCors();

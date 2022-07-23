@@ -51,4 +51,12 @@ public static class JwtHelper
             return false;
         }
     }
+
+    public static string GetIdFromToken(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(token);
+        var claimValue = jwtSecurityToken.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+        return claimValue;
+    }
 }

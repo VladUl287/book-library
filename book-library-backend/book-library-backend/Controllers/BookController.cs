@@ -54,7 +54,7 @@ public class BookController : ControllerBase
     [HttpGet("{id:Guid}")]
     public async Task<IActionResult> GetByCollection([FromRoute] Guid id, [FromQuery] PageFilter pageFilter)
     {
-        return Ok(await bookService.GetByCollection(id, pageFilter););
+        return Ok(await bookService.GetByCollection(id, pageFilter));
     }
 
     [HttpGet]
