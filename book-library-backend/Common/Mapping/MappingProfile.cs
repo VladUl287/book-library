@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
-using Common.Dtos;
+using Domain.Dtos;
 using DataAccess.Models;
 
-namespace Common.Mapping
+namespace Domain.Mapping
 {
     public class MappingProfile : Profile
     {
         public MappingProfile()
         {
-            CreateMap<Book, BookModel>().ReverseMap();
-            CreateMap<Book, CreateBookModel>().ReverseMap();
+            CreateMap<Book, BookView>().ReverseMap();
+            CreateMap<Book, BookCreate>().ReverseMap();
         }
     }
 }

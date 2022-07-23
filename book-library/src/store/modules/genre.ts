@@ -23,4 +23,4 @@ class GenresModule extends VuexModule {
     }
 }
 
-export const booksModule = getModule(GenresModule, store)
+export const genresModule = getModule(GenresModule, store)

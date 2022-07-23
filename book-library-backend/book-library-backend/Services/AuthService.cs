@@ -1,14 +1,14 @@
 ﻿using OneOf;
 using DataAccess;
-using Common.Dtos;
-using Common.Errors;
+using Domain.Dtos;
+using Domain.Errors;
 using DataAccess.Models;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using BookLibraryApi.Helpers;
+using System.IdentityModel.Tokens.Jwt;
 using BookLibraryApi.Services.Contracts;
 using BookLibraryApi.Configuration;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using BookLibraryApi.Helpers;
 
 namespace BookLibraryApi.Services;
 
@@ -35,7 +35,7 @@ public class AuthService : IAuthService
             return Errors.LoginFaild;
         }
 
-        var hashPassword = HashHelper.Hash(authModel.Password, config.HashSecret);
+        var hashPassword = HashHelper.GetHash(authModel.Password, config.HashSecret);
 
         if (user.Password != hashPassword)
         {
@@ -72,7 +72,7 @@ public class AuthService : IAuthService
             return Errors.UserWithEmailAlreadyExists;
         }
 
-        var hashPassword = HashHelper.Hash(authModel.Password, config.HashSecret);
+        var hashPassword = HashHelper.GetHash(authModel.Password, config.HashSecret);
 
         var user = new User
         {

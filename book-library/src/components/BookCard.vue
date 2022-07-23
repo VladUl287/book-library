@@ -1,5 +1,5 @@
 <template>
-    <div class="book-card">
+    <div class="book-card" @click="toBookPage">
         <div class="bookmark" @click="removeBookmark(book.id)" v-if="book.bookmark">
             <i class="bi bi-bookmark-dash"></i>
         </div>
@@ -35,6 +35,7 @@ import { Guid } from 'guid-typescript';
 import { Book } from '@/common/contracts';
 import { defineProps, PropType, ref } from 'vue';
 import { bookmarksModule } from '@/store/modules/bookmarks';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
     book: {
@@ -42,6 +43,8 @@ const props = defineProps({
         required: true
     }
 });
+
+const router = useRouter();
 
 const infoVisible = ref(false);
 
@@ -63,6 +66,10 @@ const removeBookmark = async (id: Guid) => {
     } catch (error) {
         console.log();
     }
+}
+
+const toBookPage = () => {
+    router.push({ name: 'book', params: { bookId: props.book.id.toString() } });
 }
 
 </script>
@@ -148,7 +155,7 @@ const removeBookmark = async (id: Guid) => {
     width: 100%;
 }
 
-.book-info {
+.book-card .book-info {
     text-align: left;
     user-select: none;
     align-items: center;
@@ -158,13 +165,13 @@ const removeBookmark = async (id: Guid) => {
     grid-template-columns: 1fr auto;
 }
 
-.book-info p {
+.book-card .book-info p {
     margin: 0;
     font-size: 20px;
     text-align: left;
 }
 
-.book-info .author {
+.book-card .book-info .author {
     font-size: 13px;
     color: #707070;
 }

@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using BookLibraryApi.Services.Contracts;
-using Common.Dtos;
 using DataAccess;
+using Domain.Dtos;
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using BookLibraryApi.Services.Contracts;
 
 namespace BookLibraryApi.Services;
 
@@ -43,7 +43,7 @@ public class BookmarkService : IBookmarkService
         }
     }
 
-    public async Task<IEnumerable<BookModel>> Get(Guid userId)
+    public async Task<IEnumerable<BookView>> Get(Guid userId)
     {
         var books = await dbContext.Bookmarks
             .Where(x => x.UserId == userId)
@@ -51,6 +51,6 @@ public class BookmarkService : IBookmarkService
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<IEnumerable<BookModel>>(books);
+        return mapper.Map<IEnumerable<BookView>>(books);
     }
 }

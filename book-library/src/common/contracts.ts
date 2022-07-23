@@ -17,14 +17,15 @@ export type AuthSuccess = {
     refreshToken: string
 }
 
-type BookBase = {
+interface BookBase {
     name: string,
     description: string,
     pagesCount: number,
-    authors: Author[]
+    authors: Author[],
+    genres: Genre[]
 }
 
-export type Book = BookBase & {
+export interface Book extends BookBase {
     id: Guid,
     bookmark: boolean,
     image: string,

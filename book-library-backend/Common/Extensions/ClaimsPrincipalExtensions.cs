@@ -1,31 +1,31 @@
 ﻿using System.ComponentModel;
 using System.Security.Claims;
 
-namespace Common.Extensions
+namespace Domain.Extensions;
+
+public static class ClaimsPrincipalExtensions
 {
-    public static class ClaimsPrincipalExtensions
+    public static T GetLoggedInUserId<T>(this ClaimsPrincipal principal) where T : struct
     {
-        public static T GetLoggedInUserId<T>(this ClaimsPrincipal principal)
+        if (principal is null)
         {
-            if (principal is null)
-            {
-                throw new ArgumentNullException(nameof(principal));
-            }
+            throw new ArgumentNullException(nameof(principal));
+        }
 
-            var loggedInUserId = principal.FindFirst(ClaimTypes.NameIdentifier);
+        var loggedInUserId = principal.FindFirst(ClaimTypes.NameIdentifier);
 
-            if (typeof(T) == typeof(string) && loggedInUserId is not null)
-            {
-                return (T)Convert.ChangeType(loggedInUserId, typeof(T));
-            }
-            else if (typeof(T) == typeof(Guid))
-            {
-                return (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromInvariantString(loggedInUserId.Value);
-            }
-            else
-            {
-                throw new Exception("Использован неверный тип данных");
-            }
+        if (typeof(T) == typeof(string) && loggedInUserId is not null)
+        {
+            return (T)Convert.ChangeType(loggedInUserId, typeof(T));
+        }
+        else if (typeof(T) == typeof(Guid))
+        {
+            return (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromInvariantString(loggedInUserId.Value);
+        }
+        else
+        {
+            throw new Exception("Использован неверный тип данных");
         }
     }
 }
+

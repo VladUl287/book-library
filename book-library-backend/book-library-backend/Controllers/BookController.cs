@@ -1,9 +1,9 @@
-﻿using Common.Dtos;
-using Common.Filters;
+﻿using Domain.Dtos;
+using Domain.Filters;
 using Microsoft.AspNetCore.Mvc;
 using BookLibraryApi.Services.Contracts;
-using Common.Filters.Abstractions;
-using Common.Extensions;
+using Domain.Filters.Abstractions;
+using Domain.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -11,7 +11,7 @@ namespace BookLibraryApi.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class BookController : ControllerBase
 {
     private readonly IBookService bookService;
@@ -25,31 +25,36 @@ public class BookController : ControllerBase
     public async Task<IActionResult> GetAll([FromQuery] BookFilter bookFilter)
     {
         var userId = User.GetLoggedInUserId<Guid>();
-        var books = await bookService.GetAll(userId, bookFilter);
 
-        SetUrl(books.ToList());
+        return Ok(await bookService.GetAll(userId, bookFilter));
+    }
 
-        return Ok(books);
+    [HttpGet]
+    public async Task<IActionResult> GetNoveltiesBooks()
+    {
+        return Ok(await bookService.GetNoveltiesBooks());
+    }
+
+    [HttpGet("{id:Guid}")]
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
+    {
+        var result = await bookService.GetById(id);
+
+        return result.Match<IActionResult>(
+            success => Ok(success),
+            error => BadRequest(error));
     }
 
     [HttpGet("{id:Guid}")]
     public async Task<IActionResult> GetByAuthor([FromRoute] Guid id, [FromQuery] PageFilter pageFilter)
     {
-        var books = await bookService.GetByAuthor(id, pageFilter);
-
-        SetUrl(books.ToList());
-
-        return Ok(books);
+        return Ok(await bookService.GetByAuthor(id, pageFilter));
     }
 
     [HttpGet("{id:Guid}")]
     public async Task<IActionResult> GetByCollection([FromRoute] Guid id, [FromQuery] PageFilter pageFilter)
     {
-        var books = await bookService.GetByCollection(id, pageFilter);
-
-        SetUrl(books.ToList());
-
-        return Ok(books);
+        return Ok(await bookService.GetByCollection(id, pageFilter););
     }
 
     [HttpGet]
@@ -57,13 +62,11 @@ public class BookController : ControllerBase
     {
         var userId = User.GetLoggedInUserId<Guid>();
 
-        var books = await bookService.GetRecommendations(userId, pageFilter);
-
-        return Ok(books);
+        return Ok(await bookService.GetRecommendations(userId, pageFilter));
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm] CreateBookModel bookModel)
+    public async Task<IActionResult> Create([FromForm] BookCreate bookModel)
     {
         var result = await bookService.Create(bookModel);
 
@@ -85,7 +88,7 @@ public class BookController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update(BookModel bookModel)
+    public async Task<IActionResult> Update(BookView bookModel)
     {
         var book = await bookService.Update(bookModel);
 
@@ -93,20 +96,10 @@ public class BookController : ControllerBase
     }
 
     [HttpDelete]
-    public async Task<IActionResult> Remove(BookModel bookModel)
+    public async Task<IActionResult> Remove(BookView bookModel)
     {
         await bookService.Remove(bookModel);
 
         return NoContent();
-    }
-
-    private void SetUrl(List<BookModel> result)
-    {
-        for (int i = 0; i < result.Count; i++)
-        {
-            result[i].Image = $"{Request.Scheme}://{Request.Host}" +
-               //$"{Url.Action("GetPicture", "Picture", new { id = result[i].Id })}";
-               $"{Url.Action("GetPicture", "Picture", new { id = Guid.Parse("6a6e32c6-9f56-4306-b109-3c5b91ab5bd2") })}";
-        }
     }
 }

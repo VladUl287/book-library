@@ -1,9 +1,13 @@
 using BookLibraryApi.Configuration;
 using BookLibraryApi.Services;
 using BookLibraryApi.Services.Contracts;
-using Common.Configuration;
-using Common.Mapping;
+using Domain.ActionFilters;
+using Domain.Configuration;
+using Domain.Mapping;
+using Domain.Validators;
 using DataAccess;
+using Domain.Validators;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +18,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 var config = await Doopler.GetSecretsAsync<Config>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(config =>
+{
+    config.Filters.Add(typeof(ValidatorAsyncActionFilter));
+});
+
+builder.Services.AddFluentValidation(config =>
+{
+    config.RegisterValidatorsFromAssemblyContaining<AuthValidator>();
+    config.RegisterValidatorsFromAssemblyContaining<BookCreateValidatior>();
+});
+
 builder.Services.AddCors();
 
 builder.Services.AddAutoMapper(config =>
@@ -33,6 +47,7 @@ builder.Services.AddTransient<IAuthorService, AuthorService>();
 builder.Services.AddTransient<IReviewService, ReviewService>();
 builder.Services.AddTransient<IBookmarkService, BookmarkService>();
 builder.Services.AddTransient<ICollectionService, CollectionService>();
+builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<Config>(config);
 
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.AccessSecret));

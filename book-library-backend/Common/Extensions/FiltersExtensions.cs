@@ -1,8 +1,8 @@
-﻿using Common.Filters.Abstractions;
-using Common.Filters;
+﻿using Domain.Filters.Abstractions;
+using Domain.Filters;
 using DataAccess.Models;
 
-namespace Common.Extensions;
+namespace Domain.Extensions;
 
 public static class FiltersExtensions
 {

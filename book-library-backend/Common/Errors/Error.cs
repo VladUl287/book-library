@@ -1,12 +1,11 @@
-﻿namespace Common.Errors
-{
-    public class Error
-    {
-        public string ErrorDescription { get; private set; }
+﻿namespace Domain.Errors;
 
-        public Error(string error)
-        {
-            ErrorDescription = error;
-        }
+public class Error
+{
+    public string ErrorDescription { get; }
+
+    public Error(string error)
+    {
+        ErrorDescription = error;
     }
 }

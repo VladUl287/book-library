@@ -48,8 +48,11 @@ class AuthModule extends VuexModule {
 
     @Action
     async Logout(): Promise<void> {
-        await instance.post('auth/logout')
-        this.logout();
+        try {
+            await instance.post('auth/logout')
+        } finally {
+            this.logout();
+        }
     }
 
     async Refresh(): Promise<void> {

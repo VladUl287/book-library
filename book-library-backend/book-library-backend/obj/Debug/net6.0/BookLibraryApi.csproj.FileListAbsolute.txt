@@ -26,9 +26,7 @@ C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\Swas
 C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\System.IdentityModel.Tokens.Jwt.dll
-C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\Common.dll
 C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\DataAccess.dll
-C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\Common.pdb
 C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\DataAccess.pdb
 C:\Temp\BookSite\book-library-backend\book-library-backend\obj\Debug\net6.0\BookLibraryApi.csproj.AssemblyReference.cache
 C:\Temp\BookSite\book-library-backend\book-library-backend\obj\Debug\net6.0\BookLibraryApi.GeneratedMSBuildEditorConfig.editorconfig
@@ -46,3 +44,8 @@ C:\Temp\BookSite\book-library-backend\book-library-backend\obj\Debug\net6.0\ref\
 C:\Temp\BookSite\book-library-backend\book-library-backend\obj\Debug\net6.0\BookLibraryApi.pdb
 C:\Temp\BookSite\book-library-backend\book-library-backend\obj\Debug\net6.0\BookLibraryApi.genruntimeconfig.cache
 C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\SixLabors.ImageSharp.dll
+C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\FluentValidation.dll
+C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\FluentValidation.AspNetCore.dll
+C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\FluentValidation.DependencyInjectionExtensions.dll
+C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\Domain.dll
+C:\Temp\BookSite\book-library-backend\book-library-backend\bin\Debug\net6.0\Domain.pdb

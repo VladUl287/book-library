@@ -1,17 +1,16 @@
 ﻿using OneOf;
-using Common.Dtos;
-using Common.Errors;
+using Domain.Dtos;
+using Domain.Errors;
 
-namespace BookLibraryApi.Services.Contracts
+namespace BookLibraryApi.Services.Contracts;
+
+public interface IAuthService
 {
-    public interface IAuthService
-    {
-        Task<OneOf<AuthSuccess, Error>> Login(AuthModel authModel);
+    Task<OneOf<AuthSuccess, Error>> Login(AuthModel authModel);
 
-        Task<OneOf<AuthSuccess, Error>> Register(AuthModel authModel);
+    Task<OneOf<AuthSuccess, Error>> Register(AuthModel authModel);
 
-        Task<OneOf<AuthSuccess, Error>> Refresh(string token);
+    Task<OneOf<AuthSuccess, Error>> Refresh(string token);
 
-        Task Logout(Guid userId);
-    }
+    Task Logout(Guid userId);
 }

@@ -1,4 +1,4 @@
-﻿namespace Common.Dtos
+﻿namespace Domain.Dtos
 {
     public class AuthSuccess
     {

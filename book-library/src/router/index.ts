@@ -1,19 +1,33 @@
 import { authModule } from './../store/modules/auth';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import MainView from '@/views/MainView.vue'
+import BooksView from '@/views/BooksView.vue'
+import BookView from '@/views/BookView.vue'
 import BookmarkView from '@/views/BookmarkView.vue'
+import RecommendationsView from '@/views/RecommendationsView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'main',
-    component: MainView,
+    component: BooksView,
     meta: { requiresAuth: true }
   },
   {
     path: '/bookmarks',
     name: 'bookmark',
     component: BookmarkView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/book/:bookId',
+    name: 'book',
+    component: BookView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/recommendations',
+    name: 'recommendations',
+    component: RecommendationsView,
     meta: { requiresAuth: true }
   },
   {

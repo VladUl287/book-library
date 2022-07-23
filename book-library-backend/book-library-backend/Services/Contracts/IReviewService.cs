@@ -1,7 +1,7 @@
 ﻿using OneOf;
-using Common.Dtos;
-using Common.Errors;
-using Common.Filters;
+using Domain.Dtos;
+using Domain.Errors;
+using Domain.Filters;
 
 namespace BookLibraryApi.Services.Contracts;
 

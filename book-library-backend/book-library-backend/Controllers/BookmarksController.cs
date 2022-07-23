@@ -1,6 +1,6 @@
 ﻿using BookLibraryApi.Services.Contracts;
-using Common.Dtos;
-using Common.Extensions;
+using Domain.Dtos;
+using Domain.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,29 +20,29 @@ public class BookmarksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<BookModel>> Get()
+    public async Task<IEnumerable<BookView>> Get()
     {
         var userId = User.GetLoggedInUserId<Guid>();
 
         return await bookmarkService.Get(userId);
     }
 
-    [HttpPost("{bookId:Guid}")]
-    public async Task<IActionResult> Add([FromRoute] Guid bookId)
+    [HttpPost("{id:Guid}")]
+    public async Task<IActionResult> Add([FromRoute] Guid id)
     {
         var userId = User.GetLoggedInUserId<Guid>();
 
-        await bookmarkService.Add(userId, bookId);
+        await bookmarkService.Add(userId, id);
 
         return NoContent();
     }
 
-    [HttpPost("{bookId:Guid}")]
-    public async Task<IActionResult> Remove([FromRoute] Guid bookId)
+    [HttpPost("{id:Guid}")]
+    public async Task<IActionResult> Remove([FromRoute] Guid id)
     {
         var userId = User.GetLoggedInUserId<Guid>();
 
-        await bookmarkService.Remove(userId, bookId);
+        await bookmarkService.Remove(userId, id);
 
         return NoContent();
     }

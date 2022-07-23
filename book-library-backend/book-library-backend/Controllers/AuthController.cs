@@ -1,5 +1,5 @@
-﻿using Common.Dtos;
-using Common.Extensions;
+﻿using Domain.Dtos;
+using Domain.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using BookLibraryApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;

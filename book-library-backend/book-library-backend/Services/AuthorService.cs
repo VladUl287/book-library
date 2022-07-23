@@ -1,12 +1,11 @@
-﻿using AutoMapper;
-using Common.Dtos;
+﻿using OneOf;
+using AutoMapper;
 using DataAccess;
+using Domain.Dtos;
+using Domain.Errors;
 using DataAccess.Models;
-using BookLibraryApi.Services.Contracts;
 using Microsoft.EntityFrameworkCore;
-using OneOf;
-using Common.Errors;
-using Common.Filters;
+using BookLibraryApi.Services.Contracts;
 
 namespace BookLibraryApi.Services;
 

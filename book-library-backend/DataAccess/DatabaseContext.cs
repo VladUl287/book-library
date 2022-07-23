@@ -27,10 +27,10 @@ namespace DataAccess
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.LogTo((msg) =>
-            {
-                Console.WriteLine(msg);
-            });
+            //optionsBuilder.LogTo((msg) =>
+            //{
+            //    Console.WriteLine(msg);
+            //});
             base.OnConfiguring(optionsBuilder);
         }
 

@@ -8,7 +8,7 @@
                 <router-link to="/" class="nav-item">Новинки</router-link>
             </li>
             <li>
-                <router-link to="/" class="nav-item">Рекомендации</router-link>
+                <router-link to="/recommendations" class="nav-item">Рекомендации</router-link>
             </li>
             <li>
                 <router-link to="/bookmarks" class="nav-item">Закладки</router-link>

@@ -1,14 +1,14 @@
-﻿using AutoMapper;
-using BookLibraryApi.Helpers;
-using Common.Dtos;
-using Common.Errors;
-using Common.Extensions;
-using Common.Filters;
-using Common.Filters.Abstractions;
+﻿using OneOf;
 using DataAccess;
+using AutoMapper;
+using Domain.Dtos;
+using Domain.Errors;
+using Domain.Filters;
 using DataAccess.Models;
+using Domain.Extensions;
+using Domain.Filters.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using OneOf;
+using BookLibraryApi.Services.Contracts;
 
 namespace BookLibraryApi.Services
 {
@@ -23,13 +23,13 @@ namespace BookLibraryApi.Services
             this.mapper = mapper;
         }
 
-        public async Task<IEnumerable<CollectionModel>> GetAll(CollectionFilter collectionFilter)
+        public async Task<IEnumerable<CollectionView>> GetAll(CollectionFilter collectionFilter)
         {
             var collections = await dbContext.Collections
                 .SetPageFilter(collectionFilter)
                 .SetCollectionFilter(collectionFilter)
                 .OrderBy(x => x.DateCreate)
-                .Select(x => new CollectionModel
+                .Select(x => new CollectionView
                 {
                     Name = x.Name,
                     Description = x.Description,
@@ -42,13 +42,13 @@ namespace BookLibraryApi.Services
             return collections;
         }
 
-        public async Task<IEnumerable<CollectionModel>> GetByUser(Guid userId, PageFilter pageFilter)
+        public async Task<IEnumerable<CollectionView>> GetByUser(Guid userId, PageFilter pageFilter)
         {
             return await dbContext.Collections
-                .Where(x => x.UserId == userId)
                 .SetPageFilter(pageFilter)
+                .Where(x => x.UserId == userId)
                 .OrderBy(x => x.DateCreate)
-                .Select(x => new CollectionModel
+                .Select(x => new CollectionView
                 {
                     Name = x.Name,
                     Description = x.Description,
@@ -59,11 +59,9 @@ namespace BookLibraryApi.Services
                 .ToListAsync();
         }
 
-        public async Task<OneOf<CollectionModel, Error>> Create(Guid userId, CreateCollection model)
+        public async Task<OneOf<CollectionView, Error>> Create(Guid userId, CollectionCreate model)
         {
-            var exists = await dbContext.Collections.AnyAsync(x => x.UserId == userId && x.Name == model.Name);
-
-            if (exists)
+            if (await dbContext.Collections.AnyAsync(x => x.UserId == userId && x.Name == model.Name))
             {
                 return Errors.CollectionAlreadyExists;
             }
@@ -74,25 +72,34 @@ namespace BookLibraryApi.Services
                 Description = model.Name,
                 UserId = userId
             };
-            await dbContext.Collections.AddAsync(collection);
 
-            if (model.Books.Length > 0)
+            using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try
             {
-                var booksCollection = new BookCollection[model.Books.Length];
+                await dbContext.Collections.AddAsync(collection);
+
+                var booksCollections = new BookCollection[model.Books.Length];
                 for (int i = 0; i < model.Books.Length; i++)
                 {
-                    booksCollection[i] = new BookCollection
+                    booksCollections[i] = new BookCollection
                     {
                         BookId = model.Books[i].Id,
                         CollectionId = collection.Id
                     };
                 }
-                await dbContext.BooksCollections.AddRangeAsync(booksCollection);
+
+                await dbContext.BooksCollections.AddRangeAsync(booksCollections);
+
+                await dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return Errors.BookCreationFaild;
             }
 
-            await dbContext.SaveChangesAsync();
-
-            return mapper.Map<CollectionModel>(collection);
+            return mapper.Map<CollectionView>(collection);
         }
 
         public async Task AddBook(Guid collectionId, Guid bookId)
@@ -131,31 +138,12 @@ namespace BookLibraryApi.Services
             }
         }
 
-        public async Task Update(CollectionModel model)
+        public async Task Update(CollectionView model)
         {
-            var collection = await dbContext.Collections.FirstOrDefaultAsync(x => x.Id == model.Id);
-            if (collection is not null)
-            {
-                if (!string.IsNullOrEmpty(model.Name))
-                {
-                    collection.Name = model.Name;
-                }
-                if (!string.IsNullOrEmpty(model.Description))
-                {
-                    collection.Description = model.Description;
-                }
-                if (model.Views != default)
-                {
-                    collection.Views = model.Views;
-                }
-                if (model.Likes != default)
-                {
-                    collection.Likes = model.Likes;
-                }
+            var collection = mapper.Map<Collection>(model);
 
-                dbContext.Collections.Update(collection);
-                await dbContext.SaveChangesAsync();
-            }
+            dbContext.Collections.Update(collection);
+            await dbContext.SaveChangesAsync();
         }
     }
 }

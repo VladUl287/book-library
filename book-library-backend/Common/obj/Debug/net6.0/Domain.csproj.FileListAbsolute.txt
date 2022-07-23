@@ -1,0 +1,15 @@
+C:\Temp\BookSite\book-library-backend\Common\bin\Debug\net6.0\Domain.deps.json
+C:\Temp\BookSite\book-library-backend\Common\bin\Debug\net6.0\Domain.dll
+C:\Temp\BookSite\book-library-backend\Common\bin\Debug\net6.0\ref\Domain.dll
+C:\Temp\BookSite\book-library-backend\Common\bin\Debug\net6.0\Domain.pdb
+C:\Temp\BookSite\book-library-backend\Common\bin\Debug\net6.0\DataAccess.dll
+C:\Temp\BookSite\book-library-backend\Common\bin\Debug\net6.0\DataAccess.pdb
+C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Domain.csproj.AssemblyReference.cache
+C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Domain.AssemblyInfoInputs.cache
+C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Domain.AssemblyInfo.cs
+C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Domain.csproj.CoreCompileInputs.cache
+C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Domain.csproj.CopyComplete
+C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Domain.dll
+C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\ref\Domain.dll
+C:\Temp\BookSite\book-library-backend\Common\obj\Debug\net6.0\Domain.pdb

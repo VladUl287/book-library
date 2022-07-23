@@ -5,11 +5,13 @@ namespace BookLibraryApi.Helpers;
 
 public static class HashHelper
 {
-    public static string Hash(string password, string key)
+    private static readonly ArgumentException PasswordKeyArgumentException = new($"{nameof(HashHelper)} - {nameof(GetHash)} не переданы пароль или ключ");
+
+    public static string GetHash(string password, string key)
     {
         if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(key))
         {
-            throw new ArgumentNullException(nameof(password));
+            throw PasswordKeyArgumentException;
         }
 
         return Convert.ToBase64String(KeyDerivation.Pbkdf2(

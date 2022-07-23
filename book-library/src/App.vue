@@ -16,7 +16,7 @@ import NavBar from "@/components/NavBar.vue";
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #000;
+  color: #f1f1f1;
   height: 100vh;
   text-align: center;
   box-sizing: border-box;

@@ -14,10 +14,10 @@ namespace BookLibraryApi.Controllers
         }
 
 
-        [HttpGet("{id:Guid}")]
-        public IActionResult GetPicture(Guid id)
+        [HttpGet("{name}")]
+        public IActionResult GetPicture(string name)
         {
-            var path = $@"{Directory}\{id}.jpg";
+            var path = $@"{Directory}\{name}.jpg";
 
             return PhysicalFile(path, "image/jpeg");
         }

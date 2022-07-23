@@ -6,13 +6,17 @@
     </div>
 </template>
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { computed } from '@vue/reactivity';
 import BookCard from './BookCard.vue';
 import { Book } from '@/common/contracts';
 import { booksModule } from '@/store/modules/books';
+import { onMounted, defineProps, PropType } from 'vue';
 
-const books = computed<Book[]>(() => booksModule.books!);
+defineProps({
+    books: {
+        type: Object as PropType<Book[]>,
+        required: true
+    }
+});
 
 onMounted(() => {
     booksModule.getBooks();

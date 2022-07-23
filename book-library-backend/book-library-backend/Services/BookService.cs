@@ -1,16 +1,15 @@
 ﻿using OneOf;
 using DataAccess;
 using AutoMapper;
-using Common.Dtos;
-using Common.Errors;
-using Common.Filters;
-using Common.Extensions;
+using Domain.Dtos;
+using Domain.Errors;
+using Domain.Filters;
+using Domain.Extensions;
 using DataAccess.Models;
-using SixLabors.ImageSharp;
+using Domain.Filters.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using BookLibraryApi.Helpers;
 using BookLibraryApi.Services.Contracts;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using Common.Filters.Abstractions;
 
 namespace BookLibraryApi.Services;
 
@@ -18,114 +17,283 @@ public class BookService : IBookService
 {
     private readonly IMapper mapper;
     private readonly DatabaseContext dbContext;
-    private static readonly string EnvironmentPath = @$"{Environment.CurrentDirectory}\Files\";
-    public BookService(DatabaseContext dbContext, IMapper mapper)
+    private readonly IHttpContextAccessor httpAccessor;
+
+    public BookService(DatabaseContext dbContext, IMapper mapper, IHttpContextAccessor httpAccessor)
     {
-        this.dbContext = dbContext;
         this.mapper = mapper;
+        this.dbContext = dbContext;
+        this.httpAccessor = httpAccessor;
     }
 
-    public async Task<OneOf<BookModel, Error>> Create(CreateBookModel bookModel)
+    public async Task<OneOf<BookView, Error>> Create(BookCreate bookModel)
     {
-        var imageValid = bookModel.Image.IsValid();
-
-        if (!imageValid)
+        if (!bookModel.ImageFile.IsValid())
         {
-            return Errors.LoginFaild;
+            return Errors.BookCreationFaild;
         }
 
         var book = mapper.Map<Book>(bookModel);
-        book.Image = book.Id.ToString();
 
-        using var image = Image.Load(bookModel.Image.OpenReadStream());
-        var path = $@"{EnvironmentPath}{book.Image}.jpg";
-        image.Save(path, new JpegEncoder());
-
-        var bookEntity = await dbContext.Books.AddAsync(book);
-        await dbContext.SaveChangesAsync();
-
-        if (bookModel.Authors.Length > 0)
+        using var transaction = await dbContext.Database.BeginTransactionAsync();
+        try
         {
-            var authors = mapper.Map<Author[]>(bookModel.Authors);
-            var booksAuthors = new List<BookAuthor>(authors.Length);
-            for (int i = 0; i < authors.Length; i++)
-            {
-                booksAuthors.Add(new BookAuthor
-                {
-                    AuthorId = authors[i].Id,
-                    BookId = book.Id
-                });
-            }
+            await dbContext.Books.AddAsync(book);
 
-            await dbContext.BooksAuthors.AddRangeAsync(booksAuthors);
+            var bookAuthors = bookModel.Authors.Select(x => new BookAuthor
+            {
+                AuthorId = x.Id,
+                BookId = book.Id
+            });
+            var bookGenres = bookModel.Genres.Select(x => new BookGenre
+            {
+                GenreId = x.Id,
+                BookId = book.Id
+            });
+
+            await dbContext.BooksGenres.AddRangeAsync(bookGenres);
+            await dbContext.BooksAuthors.AddRangeAsync(bookAuthors);
+
             await dbContext.SaveChangesAsync();
+
+            ImageHelper.CreateImage(bookModel.ImageFile, book.Id.ToString());
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            return Errors.BookCreationFaild;
         }
 
-        return mapper.Map<BookModel>(bookEntity.Entity);
+        return mapper.Map<BookView>(book);
     }
 
-    public async Task<IEnumerable<BookModel>> GetAll(Guid userId, BookFilter bookFilter)
+
+
+    public async Task<IEnumerable<BookView>> GetAll(Guid userId, BookFilter bookFilter)
     {
         var books = await dbContext.Books
-            .SetBookFilter(bookFilter)
             .SetPageFilter(bookFilter)
-            .Select(x => new BookModel
+            .SetBookFilter(bookFilter)
+            .Select(x => new BookView
             {
                 Id = x.Id,
                 Name = x.Name,
                 Image = x.Image,
                 Description = x.Description,
                 PagesCount = x.PagesCount,
+                Genres = x.BooksGenres.Select(x => new GenreModel
+                {
+                    Id = x.GenreId,
+                    Name = x.Genre.Name
+                }),
                 Authors = x.BooksAuthors.Select(x => new AuthorModel
                 {
                     Id = x.AuthorId,
                     Name = x.Author.Name
-                }).ToArray()
+                })
             })
             .AsNoTracking()
             .ToListAsync();
 
-        var bookmarks = await dbContext.Bookmarks
-            .Where(x => x.UserId == userId)
-            .Select(x => x.BookId)
-            .ToListAsync();
-
-        for (int i = 0; i < books.Count; i++)
-        {
-            if (bookmarks.Contains(books[i].Id))
-            {
-                books[i].Bookmark = true;
-            }
-        }
+        SetUrls(books);
 
         return books;
     }
 
-    public async Task<IEnumerable<BookModel>> GetByAuthor(Guid id, PageFilter pageFilter)
+    public async Task<IEnumerable<BookView>> GetByAuthor(Guid id, PageFilter pageFilter)
     {
         var books = await dbContext.BooksAuthors
-            .Where(x => x.AuthorId == id)
             .SetPageFilter(pageFilter)
-            .Select(x => x.Book)
+            .Where(x => x.AuthorId == id)
+            .Select(x => new BookView
+            {
+                Id = x.Book.Id,
+                Name = x.Book.Name,
+                Image = x.Book.Image,
+                Description = x.Book.Description,
+                PagesCount = x.Book.PagesCount,
+                Genres = x.Book.BooksGenres.Select(x => new GenreModel
+                {
+                    Id = x.GenreId,
+                    Name = x.Genre.Name
+                }),
+                Authors = x.Book.BooksAuthors.Select(x => new AuthorModel
+                {
+                    Id = x.AuthorId,
+                    Name = x.Author.Name
+                })
+            })
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<IEnumerable<BookModel>>(books);
+        SetUrls(books);
+
+        return books;
     }
 
-    public async Task<IEnumerable<BookModel>> GetByCollection(Guid collectionId, PageFilter pageFilter)
+    public async Task<IEnumerable<BookView>> GetByCollection(Guid collectionId, PageFilter pageFilter)
     {
         var books = await dbContext.BooksCollections
-            .Where(x => x.CollectionId == collectionId)
             .SetPageFilter(pageFilter)
-            .Select(x => x.Book)
+            .Where(x => x.CollectionId == collectionId)
+            .Select(x => new BookView
+            {
+                Id = x.Book.Id,
+                Name = x.Book.Name,
+                Image = x.Book.Image,
+                Description = x.Book.Description,
+                PagesCount = x.Book.PagesCount,
+                Genres = x.Book.BooksGenres.Select(x => new GenreModel
+                {
+                    Id = x.GenreId,
+                    Name = x.Genre.Name
+                }),
+                Authors = x.Book.BooksAuthors.Select(x => new AuthorModel
+                {
+                    Id = x.AuthorId,
+                    Name = x.Author.Name
+                })
+            })
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<IEnumerable<BookModel>>(books);
+        SetUrls(books);
+
+        return books;
     }
 
-    public async Task Remove(BookModel bookModel)
+
+    public async Task<OneOf<IEnumerable<BookView>, Error>> GetRecommendations(Guid userId, PageFilter pageFilter)
+    {
+        var reviews = await dbContext.Reviews
+            .Where(x => x.UserId == userId)
+            .Select(x => new
+            {
+                x.Rating,
+                Genres = x.Book.BooksGenres.Select(x => x.GenreId)
+            })
+            .OrderBy(x => x.Rating)
+            .AsNoTracking()
+            .ToListAsync();
+
+        if (reviews.Count < 10)
+        {
+            return Errors.RecommendationsFaild;
+        }
+
+        var genres = reviews
+            .SelectMany(x => x.Genres)
+            .Take(10)
+            .ToList();
+
+        genres.Sort();
+
+        var distinctGenres = genres.Distinct();
+
+        if (distinctGenres.Any())
+        {
+            var query = dbContext.Books.SetPageFilter(pageFilter);
+            var queryGenres = dbContext.BooksGenres.Where(x => distinctGenres.Contains(x.GenreId));
+
+            query = query.Where(x => x.BooksGenres.Intersect(queryGenres).Any());
+
+            var books = await query
+                .Select(x => new BookView
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Image = x.Image,
+                    Description = x.Description,
+                    PagesCount = x.PagesCount,
+                    Genres = x.BooksGenres.Select(x => new GenreModel
+                    {
+                        Id = x.GenreId,
+                        Name = x.Genre.Name
+                    }),
+                    Authors = x.BooksAuthors.Select(x => new AuthorModel
+                    {
+                        Id = x.AuthorId,
+                        Name = x.Author.Name
+                    })
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+            SetUrls(books);
+
+            return books;
+        }
+
+        return Errors.RecommendationsFaild;
+    }
+
+    public async Task<OneOf<BookView, Error>> GetById(Guid bookId)
+    {
+        var book = await dbContext.Books
+            .Select(x => new BookView
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Image = x.Image,
+                Description = x.Description,
+                PagesCount = x.PagesCount,
+                Genres = x.BooksGenres.Select(x => new GenreModel
+                {
+                    Id = x.GenreId,
+                    Name = x.Genre.Name
+                }),
+                Authors = x.BooksAuthors.Select(x => new AuthorModel
+                {
+                    Id = x.AuthorId,
+                    Name = x.Author.Name
+                })
+            })
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == bookId);
+
+        if (book is null)
+        {
+            return Errors.BookNotExists;
+        }
+
+        SetUrl(book);
+
+        return book;
+    }
+
+    public async Task<IEnumerable<BookView>> GetNoveltiesBooks()
+    {
+        var books = await dbContext.Books
+            .Select(x => new BookView
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Image = x.Image,
+                Description = x.Description,
+                PagesCount = x.PagesCount,
+                Genres = x.BooksGenres.Select(x => new GenreModel
+                {
+                    Id = x.GenreId,
+                    Name = x.Genre.Name
+                }),
+                Authors = x.BooksAuthors.Select(x => new AuthorModel
+                {
+                    Id = x.AuthorId,
+                    Name = x.Author.Name
+                })
+            })
+            .OrderBy(x => x.Year)
+            .AsNoTracking()
+            .ToListAsync();
+
+        SetUrls(books);
+
+        return books;
+    }
+
+    public async Task Remove(BookView bookModel)
     {
         var book = mapper.Map<Book>(bookModel);
 
@@ -133,7 +301,7 @@ public class BookService : IBookService
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<BookModel> Update(BookModel bookModel)
+    public async Task<BookView> Update(BookView bookModel)
     {
         var book = mapper.Map<Book>(bookModel);
 
@@ -164,42 +332,24 @@ public class BookService : IBookService
         return bookRead;
     }
 
-    public async Task<IEnumerable<BookModel>> GetRecommendations(Guid userId, PageFilter pageFilter)
+    private void SetUrl(BookView result)
     {
-        var reviews = await dbContext.Reviews
-            .AsNoTracking()
-            .Where(x => x.UserId == userId)
-            .Select(x => new { Rating = x.Rating, Genres = x.Book.BooksGenres.Select(x => x.GenreId) })
-            .OrderBy(x => x.Rating)
-            .ToListAsync();
-
-        if (reviews.Count < 10)
+        var context = httpAccessor.HttpContext;
+        if (context is not null)
         {
-            return null;
+            result.Image = $"{context.Request.Scheme}://{context.Request.Host}/Picture/GetPicture/6a6e32c6-9f56-4306-b109-3c5b91ab5bd2";
         }
+    }
 
-        var genres = reviews.Take(10).Select(x => x.Genres).ToArray();
-        var genreList = new List<Guid>();
-        for (int i = 0; i < 10; i++)
+    private void SetUrls(List<BookView> result)
+    {
+        var context = httpAccessor.HttpContext;
+        if (context is not null)
         {
-            genreList.AddRange(genres[i]);
+            for (int i = 0; i < result.Count; i++)
+            {
+                result[i].Image = $"{context.Request.Scheme}://{context.Request.Host}/Picture/GetPicture/6a6e32c6-9f56-4306-b109-3c5b91ab5bd2";
+            }
         }
-
-        genreList.Sort();
-        genreList.Distinct();
-
-        if (genreList.Count > 0)
-        {
-            var query = dbContext.Books.AsQueryable();
-            var queryGenres = dbContext.BooksGenres.Where(x => genreList.Contains(x.GenreId));
-
-            query = query
-                .SetPageFilter(pageFilter)
-                .Where(x => x.BooksGenres.Intersect(queryGenres).Any());
-
-            return mapper.Map<IEnumerable<BookModel>>(await query.ToListAsync());
-        }
-
-        return null;
     }
 }

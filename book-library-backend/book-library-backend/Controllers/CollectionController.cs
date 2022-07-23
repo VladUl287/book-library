@@ -1,11 +1,12 @@
-﻿using Common.Dtos;
+﻿using Domain.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Common.Extensions;
+using Domain.Extensions;
 using BookLibraryApi.Services;
-using Common.Filters;
-using Common.Filters.Abstractions;
+using Domain.Filters;
+using Domain.Filters.Abstractions;
+using BookLibraryApi.Services.Contracts;
 
 namespace BookLibraryApi.Controllers;
 
@@ -36,7 +37,7 @@ public class CollectionController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm] CollectionModel bookModel)
+    public async Task<IActionResult> Create([FromForm] CollectionCreate bookModel)
     {
         var userId = User.GetLoggedInUserId<Guid>();
 
@@ -48,7 +49,7 @@ public class CollectionController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> AddBook([FromForm] CollectionManageBook manageBook)
+    public async Task<IActionResult> AddBook([FromForm] CollectionBook manageBook)
     {
         await collectionService.AddBook(manageBook.CollectionId, manageBook.BookId);
 
@@ -56,7 +57,7 @@ public class CollectionController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> RemoveBook([FromForm] CollectionManageBook manageBook)
+    public async Task<IActionResult> RemoveBook([FromForm] CollectionBook manageBook)
     {
         await collectionService.RemoveBook(manageBook.CollectionId, manageBook.BookId);
 
@@ -64,7 +65,7 @@ public class CollectionController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update(CollectionModel bookModel)
+    public async Task<IActionResult> Update(CollectionView bookModel)
     {
         await collectionService.Update(bookModel);
 

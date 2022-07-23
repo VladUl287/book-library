@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Common.Extensions;
+namespace Domain.Extensions;
 
 public static class FormFileExtensions
 {

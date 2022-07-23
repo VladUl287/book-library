@@ -1,10 +1,10 @@
-﻿using Common.Dtos;
-using Common.Filters;
+﻿using Domain.Dtos;
+using Domain.Filters;
 using Microsoft.AspNetCore.Mvc;
 using BookLibraryApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Common.Extensions;
+using Domain.Extensions;
 
 namespace BookLibraryApi.Controllers;
 
@@ -20,14 +20,14 @@ public class ReviewController : ControllerBase
         this.reviewService = reviewService;
     }
 
-    [HttpGet("{bookId:Guid}")]
-    public async Task<IActionResult> GetAll(Guid bookId, [FromQuery] ReviewFilter reviewFilter)
+    [HttpGet("{id:Guid}")]
+    public async Task<IActionResult> GetAll([FromRoute] Guid id, [FromQuery] ReviewFilter reviewFilter)
     {
-        return Ok(await reviewService.Get(bookId, reviewFilter));
+        return Ok(await reviewService.Get(id, reviewFilter));
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(ReviewModel reviewModel)
+    public async Task<IActionResult> Create([FromBody] ReviewModel reviewModel)
     {
         var userId = User.GetLoggedInUserId<Guid>();
 
@@ -41,15 +41,19 @@ public class ReviewController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> Update(ReviewModel reviewModel)
     {
-        var review = await reviewService.Update(reviewModel);
+        var userId = User.GetLoggedInUserId<Guid>();
+
+        var review = await reviewService.Update(userId, reviewModel);
 
         return Ok(review);
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> Remove(ReviewModel reviewModel)
+    [HttpDelete("{id:Guid}")]
+    public async Task<IActionResult> Remove(Guid id)
     {
-        await reviewService.Remove(reviewModel);
+        var userId = User.GetLoggedInUserId<Guid>();
+
+        await reviewService.Remove(userId, id);
 
         return NoContent();
     }
