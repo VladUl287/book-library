@@ -6,7 +6,10 @@ public static class Errors
     public static readonly Error UserWithEmailAlreadyExists = new("Пользователь с таким Email уже существует.");
     public static readonly Error TokenInvalid = new("Некорректный токен.");
     public static readonly Error CollectionAlreadyExists = new("Коллекция уже существует.");
+    public static readonly Error CollectionCreationFaild = new("Ошибка создания коллекции.");
     public static readonly Error BookNotExists = new("Такой книги не существует.");
     public static readonly Error BookCreationFaild = new("Ошибка создания книги.");
     public static readonly Error RecommendationsFaild = new("Необходимо более десяти оценок для получения рекомендаций.");
+    public static readonly Error ReviewNorExists = new("Отзыв не существует.");
+    public static readonly Error ReviewCreationFaild = new("Ошибка добавления отзыва.");
 }

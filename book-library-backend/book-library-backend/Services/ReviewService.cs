@@ -57,7 +57,7 @@ public class ReviewService : IReviewService
             if (book is null)
             {
                 await transaction.RollbackAsync();
-                return Errors.BookCreationFaild;
+                return Errors.ReviewCreationFaild;
             }
 
             await dbContext.Reviews.AddAsync(review);
@@ -80,7 +80,7 @@ public class ReviewService : IReviewService
         catch (Exception)
         {
             await transaction.RollbackAsync();
-            return Errors.BookCreationFaild;
+            return Errors.ReviewCreationFaild;
         }
         
         return mapper.Map<ReviewModel>(review);
@@ -101,7 +101,7 @@ public class ReviewService : IReviewService
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<ReviewModel> Update(Guid userId, ReviewModel reviewModel)
+    public async Task<OneOf<ReviewModel, Error>> Update(Guid userId, ReviewModel reviewModel)
     {
         var review = await dbContext.Reviews
             .AsNoTracking()
@@ -109,7 +109,7 @@ public class ReviewService : IReviewService
 
         if (review is null)
         {
-            return null;
+            return Errors.ReviewNorExists;
         }
 
         var reviewUpdate = mapper.Map<Review>(reviewModel);

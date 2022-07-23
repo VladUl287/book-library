@@ -96,7 +96,7 @@ namespace BookLibraryApi.Services
             catch
             {
                 await transaction.RollbackAsync();
-                return Errors.BookCreationFaild;
+                return Errors.CollectionCreationFaild;
             }
 
             return mapper.Map<CollectionView>(collection);
