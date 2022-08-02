@@ -1,3 +1,5 @@
+import { getUrlParams } from './../common/helpers';
+import { BooksFilter } from './../common/types';
 import { store } from "..";
 import instance from "@/http";
 import { Book } from "@/common/contracts";
@@ -8,9 +10,14 @@ import { Guid } from "guid-typescript";
 class BooksModule extends VuexModule {
     private _books: Book[] = []
     private _selectedBook: Book | undefined
+    private _filters: BooksFilter = {};
 
     get books(): Book[] {
         return this._books
+    }
+
+    get filters(): BooksFilter {
+        return this._filters
     }
 
     get selectedBook(): Book | undefined {
@@ -23,13 +30,19 @@ class BooksModule extends VuexModule {
     }
 
     @Mutation
+    setFilters(filters: BooksFilter) {
+        this._filters = filters
+    }
+
+    @Mutation
     selectBook(book: Book | undefined) {
         this._selectedBook = book
     }
 
     @Action
     async getBooks() {
-        const result = await instance.get<Book[]>('book/getAll')
+        const params = getUrlParams(this._filters);
+        const result = await instance.get<Book[]>('book/getAll', { params })
         this.setBooks(result.data)
     }
 
@@ -64,8 +77,14 @@ class BooksModule extends VuexModule {
     }
 
     @Action
+    async getReadBooks(): Promise<Book[]> {
+        const result = await instance.get<Book[]>('book/getReadBooks')
+        return result.data;
+    }
+
+    @Action
     async markAsRead(id: Guid): Promise<void> {
-        await instance.get<Book[]>('book/markAsRead/' + id)
+        await instance.patch('book/markAsRead/' + id)
     }
 }
 

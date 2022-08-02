@@ -1,12 +1,11 @@
-﻿using Domain.Dtos;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using BookLibraryApi.Services.Contracts;
+using Domain.Dtos;
 using Domain.Extensions;
-using BookLibraryApi.Services;
 using Domain.Filters;
 using Domain.Filters.Abstractions;
-using BookLibraryApi.Services.Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BookLibraryApi.Controllers;
 
@@ -76,6 +75,17 @@ public class CollectionController : ControllerBase
     public async Task<IActionResult> Remove(Guid userId, Guid collectionId)
     {
         await collectionService.Remove(userId, collectionId);
+
+        return NoContent();
+    }
+
+
+    [HttpPut]
+    public async Task<IActionResult> Like(Guid collectionId)
+    {
+        var userId = User.GetLoggedInUserId<Guid>();
+
+        await collectionService.Like(userId, collectionId);
 
         return NoContent();
     }

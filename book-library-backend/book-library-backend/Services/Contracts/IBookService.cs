@@ -11,6 +11,7 @@ public interface IBookService
 {
     Task<IEnumerable<BookView>> GetAll(Guid userId, BookFilter bookFilter);
     Task<OneOf<BookView, Error>> GetById(Guid bookId);
+    Task<IEnumerable<BookView>> GetReadBooks(Guid id);
     Task<IEnumerable<BookView>> GetNoveltiesBooks();
     Task<IEnumerable<BookView>> GetByCollection(Guid id, PageFilter pageFilter);
     Task<IEnumerable<BookView>> GetByAuthor(Guid id, PageFilter pageFilter);

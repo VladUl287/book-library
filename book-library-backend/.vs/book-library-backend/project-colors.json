@@ -13,7 +13,7 @@
     },
     "b40cee8c-a9d5-4f61-a620-1befc3f9e1fe": {
       "ProjectGuid": "b40cee8c-a9d5-4f61-a620-1befc3f9e1fe",
-      "DisplayName": "Common",
+      "DisplayName": "Domain",
       "ColorIndex": 2
     },
     "6541d1e9-62ba-434b-91e1-63ecba7368dc": {
@@ -35,7 +35,22 @@
       "ProjectGuid": "868925d2-16b9-4199-bafa-4686031b67fe",
       "DisplayName": "Infrastructure",
       "ColorIndex": 5
+    },
+    "ce6a31aa-de40-4581-afff-3d19a0d34418": {
+      "ProjectGuid": "ce6a31aa-de40-4581-afff-3d19a0d34418",
+      "DisplayName": "Tests",
+      "ColorIndex": 6
+    },
+    "cfb50d54-1cd3-438c-acb9-506d76d5d133": {
+      "ProjectGuid": "cfb50d54-1cd3-438c-acb9-506d76d5d133",
+      "DisplayName": "Tests",
+      "ColorIndex": 7
+    },
+    "be47a774-b9e1-4b6d-835d-47bc2950262f": {
+      "ProjectGuid": "be47a774-b9e1-4b6d-835d-47bc2950262f",
+      "DisplayName": "Console",
+      "ColorIndex": 8
     }
   },
-  "NextColorIndex": 6
+  "NextColorIndex": 9
 }

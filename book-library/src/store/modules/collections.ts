@@ -5,10 +5,14 @@ import { getUrlParams } from '../common/helpers';
 import { Collection, CollectionManageBook } from './../../common/contracts';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import { CollectionFilter } from '../common/types';
+import { Guid } from 'guid-typescript';
 
 @Module({ dynamic: true, store: store, name: 'collectionsModule', preserveState: localStorage.getItem('vuex') !== null })
 class CollectionsModule extends VuexModule {
-    private _collections: Collection[] = []
+    private _collections: Collection[] = [
+        { id: Guid.create(), date: new Date(), author: 'ulyanovskiy.01@mail.ru', name: 'Name', description: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Odit voluptate cumque, delectus nostrum, quasi doloribus quas quod veritatis asperiores impedit itaque? Labore ab placeat repellat beatae. Dolorum maiores in maxime aliquid commodi fugit quisquam libero reprehenderit laboriosam obcaecati ad illum earum sunt cumque dolor, hic eos adipisci esse non quae dolore molestiae iusto consectetur iure? Repellat cumque harum illo odio magni aliquid laboriosam error, vero eius dolore quaerat ut suscipit autem doloribus? Non, excepturi quam? Laudantium.', views: 23, likes: 245, books: [] }
+    ]
+
     private _userCollections: Collection[] = []
     private _filters: CollectionFilter = {}
 

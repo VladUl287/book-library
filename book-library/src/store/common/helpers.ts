@@ -1,7 +1,9 @@
 export const getUrlParams = (form: object): URLSearchParams => {
     const init: Record<string, string> = {}
     for (const [key, value] of Object.entries(form)) {
-        init[key] = value.toString();
+        if (value) {
+            init[key] = value.toString();
+        }
     }
     return new URLSearchParams(init);
 }

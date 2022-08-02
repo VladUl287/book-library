@@ -17,7 +17,7 @@ const route = useRoute();
 const books = ref<Book[]>([])
 
 watch(
-    () => route.params.bookId,
+    () => route.params.collectionId,
     async () => {
         await getBooks();
     }

@@ -1,26 +1,34 @@
 <template>
+  <div class="header">
+    <p>Все книги</p>
+  </div>
   <div class="main-wrap">
     <BookFilters />
     <div class="books">
-      <BookList :books="books"/>
+      <BookList :books="booksModule.books"/>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Book } from '@/common/contracts';
-import { computed } from '@vue/reactivity';
 import BookList from '@/components/BookList.vue';
 import { booksModule } from '@/store/modules/books';
 import BookFilters from '@/components/BookFilters.vue';
 
-const books = computed<Book[]>(() => booksModule.books)
-
 </script>
 
-<style>
+<style scoped>
+.header {
+  display: flex;
+  user-select: none;
+  justify-content: center;
+}
+.header p {
+  margin: 30px 0 50px 0;
+  font-size: xx-large;
+}
 .main-wrap {
-  max-width: 60%;
+  max-width: 90%;
   margin: 0 auto;
 }
 </style>

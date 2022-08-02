@@ -12,10 +12,9 @@
     </div>
 </template>
 <script setup lang="ts">
-import { Guid } from 'guid-typescript';
-import { defineProps, PropType } from 'vue';
 import { useStore } from 'vuex';
 import { Book } from '@/common/contracts';
+import { defineProps, PropType } from 'vue';
 
 const props = defineProps({
     book: {

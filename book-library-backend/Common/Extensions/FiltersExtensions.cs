@@ -28,11 +28,11 @@ public static class FiltersExtensions
         }
         if (bookFilter.BeginYear.HasValue)
         {
-            query = query.Where(x => x.Year > bookFilter.BeginYear.Value);
+            query = query.Where(x => x.Date.Year >= bookFilter.BeginYear.Value);
         }
         if (bookFilter.EndYear.HasValue)
         {
-            query = query.Where(x => x.Year < bookFilter.EndYear.Value);
+            query = query.Where(x => x.Date.Year <= bookFilter.EndYear.Value);
         }
         if (bookFilter.Rating.HasValue)
         {
@@ -62,10 +62,6 @@ public static class FiltersExtensions
 
     public static IQueryable<Collection> SetCollectionFilter(this IQueryable<Collection> query, CollectionFilter bookFilter)
     {
-        if (bookFilter.ViewsSort)
-        {
-            query = query.OrderBy(x => x.Views);
-        }
 
         return query;
     }

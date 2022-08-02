@@ -2,32 +2,36 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DataAccess.Configuration
+namespace DataAccess.Configuration;
+
+public class BookConfig : IEntityTypeConfiguration<Book>
 {
-    public class BookConfig : IEntityTypeConfiguration<Book>
+    public void Configure(EntityTypeBuilder<Book> builder)
     {
-        public void Configure(EntityTypeBuilder<Book> builder)
-        {
-            builder.HasKey(e => e.Id);
+        builder.HasKey(e => e.Id);
 
-            builder.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(500);
+        builder.Property(e => e.Name)
+            .IsRequired()
+            .HasMaxLength(500);
 
-            builder.HasIndex(e => e.Name)
-                .IsUnique();
+        builder.HasIndex(e => e.Name)
+            .IsUnique();
 
-            builder.Property(e => e.Description)
-                .IsRequired()
-                .HasMaxLength(10000);
+        builder.Property(e => e.Description)
+            .IsRequired()
+            .HasMaxLength(10000);
 
-            builder.Property(e => e.Image);
+        builder.Property(e => e.Image)
+            .IsRequired()
+            .HasMaxLength(500);
 
-            builder.Property(e => e.PagesCount)
-                .IsRequired();
+        builder.Property(e => e.PagesCount)
+            .IsRequired();
 
-            builder.Property(e => e.Year)
-                .IsRequired();
-        }
+        builder.Property(e => e.Date)
+            .IsRequired();
+
+        builder.Property(e => e.DateCreate)
+            .IsRequired();
     }
 }

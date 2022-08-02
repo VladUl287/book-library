@@ -8,6 +8,7 @@ namespace DataAccess
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> contextOptions) : base(contextOptions)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             Database.EnsureCreated();
         }
 
@@ -24,6 +25,7 @@ namespace DataAccess
         public DbSet<User> Users { get; init; }
         public DbSet<Role> Roles { get; init; }
         public DbSet<UserToken> UsersTokens { get; init; }
+        public DbSet<CollectionLike> CollectionsLikes { get; init; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -45,6 +47,7 @@ namespace DataAccess
             modelBuilder.ApplyConfiguration(new BookGenreConfig());
             modelBuilder.ApplyConfiguration(new BookmarkConfig());
             modelBuilder.ApplyConfiguration(new CollectionConfig());
+            modelBuilder.ApplyConfiguration(new CollectionLikeConfig());
             modelBuilder.ApplyConfiguration(new GenreConfig());
             modelBuilder.ApplyConfiguration(new ReviewConfig());
             modelBuilder.ApplyConfiguration(new RoleConfig());
@@ -65,7 +68,8 @@ namespace DataAccess
                     Name = $"Name {i}",
                     Description = $"Description {i}",
                     Image = $"Image {i}",
-                    Year = 1990,
+                    Date = DateTime.Now.AddDays(-i),
+                    DateCreate = DateTime.Now,
                     PagesCount = 200
                 });
             }

@@ -6,7 +6,7 @@ public class Collection : EntityWithId<Guid>
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public int Views { get; set; }
+    public string Image { get; set; } = string.Empty;
     public int Likes { get; set; }
     public Guid UserId { get; set; }
     public User User { get; set; }

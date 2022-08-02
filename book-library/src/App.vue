@@ -1,7 +1,9 @@
 <template>
-  <NavBar />
-  <div class="body-wrap">
-    <router-view />
+  <div class="app">
+    <NavBar />
+    <div class="body-wrap">
+      <router-view />
+    </div>
   </div>
 </template>
 
@@ -18,13 +20,21 @@ import NavBar from "@/components/NavBar.vue";
   -moz-osx-font-smoothing: grayscale;
   color: #f1f1f1;
   height: 100vh;
+  overflow: hidden;
   text-align: center;
   box-sizing: border-box;
-  background-color: #343a40;
+  background-color: #212529;
+}
+
+.app {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 .body-wrap {
-  height: calc(100% - 54px);
+  width: 100%;
+  height: 100%;
   overflow-y: auto;
 }
 

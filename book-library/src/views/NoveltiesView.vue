@@ -1,15 +1,22 @@
 <template>
   <div class="main-wrap">
-    <BookFilters />
     <div class="books">
-      <BookList />
+      <BookList :books="books"/>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import BookList from '@/components/BookList.vue';
-import BookFilters from '@/components/BookFilters.vue';
+import { Book } from '@/common/contracts';
+import { booksModule } from '@/store/modules/books';
+import { onMounted, ref } from 'vue';
+
+const books = ref<Book[]>([])
+
+onMounted(async () => {
+  books.value = await booksModule.getNoveltiesBooks()
+})
 
 </script>
 

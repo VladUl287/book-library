@@ -263,9 +263,39 @@ public class BookService : IBookService
         return book;
     }
 
+    public async Task<IEnumerable<BookView>> GetReadBooks(Guid userId)
+    {
+        var books = await dbContext.ReadList
+            .Where(x => x.UserId == userId)
+            .Select(x => new BookView
+            {
+                Id = x.Book.Id,
+                Name = x.Book.Name,
+                Image = x.Book.Image,
+                Description = x.Book.Description,
+                PagesCount = x.Book.PagesCount,
+                Genres = x.Book.BooksGenres.Select(x => new GenreModel
+                {
+                    Id = x.GenreId,
+                    Name = x.Genre.Name
+                }),
+                Authors = x.Book.BooksAuthors.Select(x => new AuthorModel
+                {
+                    Id = x.AuthorId,
+                    Name = x.Author.Name
+                })
+            })
+            .ToListAsync();
+
+        SetUrls(books);
+
+        return books;
+    }
+
     public async Task<IEnumerable<BookView>> GetNoveltiesBooks()
     {
         var books = await dbContext.Books
+            .OrderBy(x => x.Date)
             .Select(x => new BookView
             {
                 Id = x.Id,
@@ -284,7 +314,6 @@ public class BookService : IBookService
                     Name = x.Author.Name
                 })
             })
-            .OrderBy(x => x.Year)
             .AsNoTracking()
             .ToListAsync();
 
@@ -323,7 +352,7 @@ public class BookService : IBookService
         var bookRead = new BookRead
         {
             BookId = bookId,
-            UserId = bookId
+            UserId = userId
         };
 
         await dbContext.ReadList.AddAsync(bookRead);

@@ -10,7 +10,7 @@ public class CollectionConfig : IEntityTypeConfiguration<Collection>
     {
         builder.HasKey(e => e.Id);
 
-        builder.Property(e => e.Views)
+        builder.Property(e => e.DateCreate)
             .IsRequired();
 
         builder.Property(e => e.Description)
@@ -19,5 +19,13 @@ public class CollectionConfig : IEntityTypeConfiguration<Collection>
 
         builder.Property(e => e.Likes)
             .IsRequired();
+
+        builder.Property(e => e.Image)
+           .IsRequired()
+           .HasMaxLength(500);
+
+        builder.Property(e => e.Name)
+           .IsRequired()
+           .HasMaxLength(500);
     }
 }

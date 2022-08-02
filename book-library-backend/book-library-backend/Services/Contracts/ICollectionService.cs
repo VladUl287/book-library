@@ -15,4 +15,5 @@ public interface ICollectionService
     Task RemoveBook(Guid collectionId, Guid bookId);
     Task Remove(Guid userId, Guid collectionId);
     Task Update(CollectionView model);
+    Task Like(Guid userId, Guid collectionId);
 }

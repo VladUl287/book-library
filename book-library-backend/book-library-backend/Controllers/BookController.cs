@@ -11,7 +11,6 @@ namespace BookLibraryApi.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class BookController : ControllerBase
 {
     private readonly IBookService bookService;
@@ -58,14 +57,29 @@ public class BookController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> GetRecommendations([FromQuery] PageFilter pageFilter)
     {
         var userId = User.GetLoggedInUserId<Guid>();
 
-        return Ok(await bookService.GetRecommendations(userId, pageFilter));
+        var result = await bookService.GetRecommendations(userId, pageFilter);
+
+        return result.Match<IActionResult>(
+            success => Ok(success), 
+            error => BadRequest(error));
+    }
+
+    [HttpGet]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<IActionResult> GetReadBooks()
+    {
+        var userId = User.GetLoggedInUserId<Guid>();
+
+        return Ok(await bookService.GetReadBooks(userId));
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> Create([FromForm] BookCreate bookModel)
     {
         var result = await bookService.Create(bookModel);
@@ -76,6 +90,7 @@ public class BookController : ControllerBase
     }
 
     [HttpPatch("{id:Guid}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> MarkAsRead([FromRoute] Guid id)
     {
         var userId = User.GetLoggedInUserId<Guid>();
@@ -88,6 +103,7 @@ public class BookController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> Update(BookView bookModel)
     {
         var book = await bookService.Update(bookModel);
@@ -96,6 +112,7 @@ public class BookController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> Remove(BookView bookModel)
     {
         await bookService.Remove(bookModel);

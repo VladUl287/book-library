@@ -34,7 +34,8 @@ namespace BookLibraryApi.Services
                     Name = x.Name,
                     Description = x.Description,
                     Likes = x.Likes,
-                    Views = x.Views
+                    Date = x.DateCreate,
+                    Author = x.User.Email
                 })
                 .AsNoTracking()
                 .ToListAsync();
@@ -52,8 +53,7 @@ namespace BookLibraryApi.Services
                 {
                     Name = x.Name,
                     Description = x.Description,
-                    Likes = x.Likes,
-                    Views = x.Views
+                    Likes = x.Likes
                 })
                 .AsNoTracking()
                 .ToListAsync();
@@ -143,6 +143,27 @@ namespace BookLibraryApi.Services
             var collection = mapper.Map<Collection>(model);
 
             dbContext.Collections.Update(collection);
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task Like(Guid userId, Guid collectionId)
+        {
+            var collectionLike = await dbContext.CollectionsLikes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.CollectionId == collectionId); 
+
+            if (collectionLike is not null)
+            {
+                dbContext.CollectionsLikes.Remove(collectionLike);
+                await dbContext.SaveChangesAsync();
+                return;
+            }
+
+            await dbContext.CollectionsLikes.AddAsync(new CollectionLike
+            {
+                UserId = userId,
+                CollectionId = collectionId
+            });
             await dbContext.SaveChangesAsync();
         }
     }

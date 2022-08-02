@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { Book } from '@/common/contracts'
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import BookList from '@/components/BookList.vue'
 import { booksModule } from '@/store/modules/books'
 

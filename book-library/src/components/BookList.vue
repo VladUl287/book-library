@@ -1,6 +1,6 @@
 <template>
     <div class="books-list">
-        <div v-for="book in books" :key="book.id.toString()">
+        <div v-for="(book, i) in books" :key="i">
             <BookCard :book="book" />
         </div>
     </div>

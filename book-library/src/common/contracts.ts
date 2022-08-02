@@ -22,12 +22,14 @@ interface BookBase {
     description: string,
     pagesCount: number,
     authors: Author[],
+    rating: number,
     genres: Genre[]
 }
 
 export interface Book extends BookBase {
     id: Guid,
     bookmark: boolean,
+    read: boolean,
     image: string,
 }
 
@@ -51,6 +53,8 @@ export type Collection = {
     description: string,
     views: number,
     likes: number,
+    author: string,
+    date: Date,
     books: Book[]
 }
 
